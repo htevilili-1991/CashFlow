@@ -6,7 +6,7 @@ export const useCategories = () => {
   const queryClient = useQueryClient();
 
   const {
-    data: categories = [],
+    data: categoriesData = [],
     isLoading,
     error,
   } = useQuery({
@@ -18,6 +18,13 @@ export const useCategories = () => {
         console.log('Categories API response:', result);
         console.log('Categories API response type:', typeof result);
         console.log('Categories API response isArray:', Array.isArray(result));
+        
+        // Handle paginated response
+        if (result && typeof result === 'object' && 'results' in result) {
+          console.log('Detected paginated response, using results array');
+          return result.results;
+        }
+        
         return result;
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -69,7 +76,7 @@ export const useCategories = () => {
   });
 
   return {
-    categories,
+    categories: categoriesData,
     isLoading,
     error,
     createCategory: createCategoryMutation.mutate,
