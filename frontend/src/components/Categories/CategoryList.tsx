@@ -26,24 +26,24 @@ const CategoryList: React.FC = () => {
     if (!categoryName.trim()) return;
 
     if (editingCategory) {
-      updateCategory({ id: editingCategory.id, name: categoryName });
+      updateCategory({ id: editingCategory.id, name: categoryName.trim() });
     } else {
-      createCategory(categoryName);
+      createCategory(categoryName.trim());
     }
 
     closeModal();
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setEditingCategory(null);
-    setCategoryName('');
   };
 
   const openEditModal = (category: { id: number; name: string }) => {
     setEditingCategory(category);
     setCategoryName(category.name);
     setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditingCategory(null);
+    setCategoryName('');
   };
 
   const confirmDelete = () => {
@@ -55,19 +55,17 @@ const CategoryList: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500">Loading categories...</div>
-        </div>
+      <div className="text-center py-8 text-gray-500">
+        <p>Loading categories...</p>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
+    <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Categories</h2>
+        <h2 className="text-xl font-semibold text-gray-900">Categories</h2>
         <button
           onClick={() => setIsModalOpen(true)}
           className="btn-primary flex items-center"
@@ -86,14 +84,29 @@ const CategoryList: React.FC = () => {
         ) : categories.length === 0 ? (
           <div className="col-span-full text-center py-8 text-gray-500">
             <p>No categories yet. Create your first category!</p>
-                onClick={() => setIsModalOpen(true)}
-                className="btn-primary"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Category
-              </button>
-            </div>
           </div>
+        ) : (
+          categories.map((category) => (
+            <div key={category.id} className="bg-white rounded-lg shadow-md p-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{category.name}</h3>
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={() => openEditModal(category)}
+                  className="btn-secondary"
+                >
+                  <Edit2 className="w-4 h-4 mr-1" />
+                  Edit
+                </button>
+                <button
+                  onClick={() => setDeleteConfirm(category)}
+                  className="bg-red-600 text-white px-2 py-1 rounded-lg hover:bg-red-700 transition-colors font-medium"
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))
         )}
       </div>
 
@@ -114,8 +127,8 @@ const CategoryList: React.FC = () => {
                   value={categoryName}
                   onChange={(e) => setCategoryName(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  placeholder="e.g., Food, Transport, Entertainment"
-                  autoFocus
+                  placeholder="Enter category name"
+                  required
                 />
               </div>
               <div className="flex justify-end space-x-3">
@@ -131,7 +144,7 @@ const CategoryList: React.FC = () => {
                   className="btn-primary"
                   disabled={isCreating || isUpdating}
                 >
-                  {isCreating || isUpdating ? 'Saving...' : (editingCategory ? 'Update' : 'Add')}
+                  {isCreating || isUpdating ? 'Saving...' : editingCategory ? 'Update' : 'Create'}
                 </button>
               </div>
             </form>
@@ -143,9 +156,7 @@ const CategoryList: React.FC = () => {
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Delete Category
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Delete Category</h3>
             <p className="text-gray-600 mb-6">
               Are you sure you want to delete "{deleteConfirm.name}"? This action cannot be undone.
             </p>
