@@ -9,6 +9,8 @@ export const useAuth = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
+    const refreshToken = localStorage.getItem('refresh_token');
+    console.log('Checking auth - token exists:', !!token, 'refresh token exists:', !!refreshToken);
     setIsAuthenticated(!!token);
   }, []);
 
@@ -16,6 +18,7 @@ export const useAuth = () => {
     mutationFn: ({ username, password }: { username: string; password: string }) =>
       authAPI.login(username, password),
     onSuccess: (data) => {
+      console.log('Login success - received tokens:', data);
       localStorage.setItem('access_token', data.access);
       localStorage.setItem('refresh_token', data.refresh);
       setIsAuthenticated(true);

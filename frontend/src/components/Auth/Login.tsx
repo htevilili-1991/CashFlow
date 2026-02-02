@@ -11,6 +11,7 @@ const Login: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submitted - isLogin:', isLogin, 'username:', username, 'password length:', password.length);
     
     if (isLogin) {
       login({ username, password });

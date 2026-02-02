@@ -20,6 +20,8 @@ function AppContent() {
   const { transactions, balance, createTransaction, updateTransaction, deleteTransaction } = useTransactions();
   const { categories } = useCategories();
   
+  console.log('AppContent render - isAuthenticated:', isAuthenticated);
+  
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeItem, setActiveItem] = useState('dashboard');
   const [transactionModalOpen, setTransactionModalOpen] = useState(false);
