@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Dashboard from './components/Dashboard/Dashboard';
 import TransactionList from './components/Transactions/TransactionList';
-import CategoryList from './components/Categories/CategoryList';
+import TransactionModal from './components/Transactions/TransactionModal';
 import AuthGuard from './components/Auth/AuthGuard';
 import Layout from './components/Layout/Layout';
+import Settings from './components/Settings/Settings';
 import { useTransactions } from './hooks/useTransactions';
 import type { Transaction } from './types';
 
@@ -66,15 +67,8 @@ function AppContent() {
             onDeleteTransaction={handleDeleteTransaction}
           />
         );
-      case 'categories':
-        return <CategoryList />;
       case 'settings':
-        return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Settings</h2>
-            <p className="text-gray-600">Settings page coming soon...</p>
-          </div>
-        );
+        return <Settings />;
       default:
         return null;
     }

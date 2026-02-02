@@ -1,11 +1,11 @@
 import React from 'react';
 import { 
+  Menu, 
+  X, 
   LayoutDashboard, 
   Receipt, 
-  FolderOpen, 
   Settings, 
-  LogOut,
-  X
+  LogOut
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -20,7 +20,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, activeItem, onNavig
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'transactions', label: 'Transactions', icon: Receipt },
-    { id: 'categories', label: 'Categories', icon: FolderOpen },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 

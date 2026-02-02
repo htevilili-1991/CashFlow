@@ -36,8 +36,6 @@ const Layout: React.FC<LayoutProps> = ({
         return 'Dashboard';
       case 'transactions':
         return 'Transactions';
-      case 'categories':
-        return 'Categories';
       case 'settings':
         return 'Settings';
       default:
