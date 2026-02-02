@@ -46,7 +46,7 @@ const Layout: React.FC<LayoutProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex">
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
@@ -55,13 +55,13 @@ const Layout: React.FC<LayoutProps> = ({
         onLogout={logout}
       />
       
-      <div className="lg:pl-64">
+      <div className="flex-1 flex flex-col">
         <Header
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
           title={getPageTitle()}
         />
         
-        <main>
+        <main className="flex-1 overflow-auto">
           {children}
         </main>
       </div>
