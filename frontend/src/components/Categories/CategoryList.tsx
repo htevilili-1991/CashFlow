@@ -14,6 +14,8 @@ const CategoryList: React.FC = () => {
     isDeleting 
   } = useCategories();
   
+  console.log('CategoryList - categories:', categories, 'type:', typeof categories, 'isArray:', Array.isArray(categories));
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<{ id: number; name: string } | null>(null);
   const [categoryName, setCategoryName] = useState('');
@@ -77,48 +79,13 @@ const CategoryList: React.FC = () => {
 
       {/* Categories Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {categories.map((category) => (
-          <div
-            key={category.id}
-            className="card group hover:shadow-md transition-shadow"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-primary-100 rounded-lg">
-                  <FolderOpen className="w-5 h-5 text-primary-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">{category.name}</h3>
-                  <p className="text-sm text-gray-500">
-                    Created {new Date(category.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={() => openEditModal(category)}
-                  className="p-1 text-gray-400 hover:text-primary-600 transition-colors"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setDeleteConfirm({ id: category.id, name: category.name })}
-                  className="p-1 text-gray-400 hover:text-red-600 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+        {!Array.isArray(categories) ? (
+          <div className="col-span-full text-center py-8 text-gray-500">
+            <p>Loading categories...</p>
           </div>
-        ))}
-
-        {categories.length === 0 && (
-          <div className="col-span-full text-center py-12">
-            <div className="text-gray-500">
-              <FolderOpen className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-              <p className="text-lg font-medium mb-2">No categories yet</p>
-              <p className="text-sm mb-4">Create your first category to organize transactions</p>
-              <button
+        ) : categories.length === 0 ? (
+          <div className="col-span-full text-center py-8 text-gray-500">
+            <p>No categories yet. Create your first category!</p>
                 onClick={() => setIsModalOpen(true)}
                 className="btn-primary"
               >
