@@ -11,17 +11,36 @@ export const useCategories = () => {
     error,
   } = useQuery({
     queryKey: ['categories'],
-    queryFn: categoriesAPI.getCategories,
+    queryFn: async () => {
+      console.log('Fetching categories...');
+      try {
+        const result = await categoriesAPI.getCategories();
+        console.log('Categories API response:', result);
+        console.log('Categories API response type:', typeof result);
+        console.log('Categories API response isArray:', Array.isArray(result));
+        return result;
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        throw error;
+      }
+    },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
+  // Log error if it exists
+  if (error) {
+    console.error('Categories query error:', error);
+  }
+
   const createCategoryMutation = useMutation({
     mutationFn: categoriesAPI.createCategory,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Category created successfully:', data);
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       toast.success('Category created successfully!');
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Failed to create category:', error);
       toast.error('Failed to create category.');
     },
   });
