@@ -6,6 +6,7 @@ const CategoryList: React.FC = () => {
   const { 
     categories, 
     isLoading, 
+    error,
     createCategory, 
     updateCategory, 
     deleteCategory,
@@ -57,6 +58,16 @@ const CategoryList: React.FC = () => {
     return (
       <div className="text-center py-8 text-gray-500">
         <p>Loading categories...</p>
+        <p className="text-sm mt-2">Debug: isLoading = {isLoading.toString()}</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8 text-red-500">
+        <p>Error loading categories!</p>
+        <p className="text-sm mt-2">{error.message}</p>
       </div>
     );
   }
@@ -77,6 +88,9 @@ const CategoryList: React.FC = () => {
 
       {/* Categories Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="col-span-full text-center py-4 text-gray-500 text-sm">
+          Debug: categories type = {typeof categories}, isArray = {Array.isArray(categories).toString()}, length = {Array.isArray(categories) ? categories.length : 'N/A'}
+        </div>
         {!Array.isArray(categories) ? (
           <div className="col-span-full text-center py-8 text-gray-500">
             <p>Loading categories...</p>
