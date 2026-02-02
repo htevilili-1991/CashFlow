@@ -17,3 +17,5 @@ export const authAPI = {
     return response.data;
   },
 };
+
+export default api;
