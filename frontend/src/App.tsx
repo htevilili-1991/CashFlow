@@ -1,28 +1,18 @@
 import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from 'react-hot-toast';
-import Sidebar from './components/Layout/Sidebar';
-import Header from './components/Layout/Header';
 import Dashboard from './components/Dashboard/Dashboard';
 import TransactionList from './components/Transactions/TransactionList';
-import TransactionModal from './components/Transactions/TransactionModal';
 import CategoryList from './components/Categories/CategoryList';
-import Login from './components/Auth/Login';
-import { useAuth } from './hooks/useAuth';
+import AuthGuard from './components/Auth/AuthGuard';
+import Layout from './components/Layout/Layout';
 import { useTransactions } from './hooks/useTransactions';
-import { useCategories } from './hooks/useCategories';
 import type { Transaction } from './types';
 
 const queryClient = new QueryClient();
 
 function AppContent() {
-  const { isAuthenticated, logout } = useAuth();
   const { transactions, balance, createTransaction, updateTransaction, deleteTransaction } = useTransactions();
-  const { categories } = useCategories();
   
-  console.log('AppContent render - isAuthenticated:', isAuthenticated);
-  
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeItem, setActiveItem] = useState('dashboard');
   const [transactionModalOpen, setTransactionModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
@@ -47,21 +37,8 @@ function AppContent() {
     } else {
       createTransaction(transaction);
     }
-  };
-
-  const getPageTitle = () => {
-    switch (activeItem) {
-      case 'dashboard':
-        return 'Dashboard';
-      case 'transactions':
-        return 'Transactions';
-      case 'categories':
-        return 'Categories';
-      case 'settings':
-        return 'Settings';
-      default:
-        return 'Dashboard';
-    }
+    setTransactionModalOpen(false);
+    setEditingTransaction(null);
   };
 
   const renderContent = () => {
@@ -103,56 +80,27 @@ function AppContent() {
     }
   };
 
-  if (!isAuthenticated) {
-    return <Login />;
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Sidebar
-        isOpen={sidebarOpen}
-        onToggle={() => setSidebarOpen(!sidebarOpen)}
-        activeItem={activeItem}
-        onNavigate={setActiveItem}
-        onLogout={logout}
-      />
-      
-      <div className="lg:pl-64">
-        <Header
-          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-          title={getPageTitle()}
-        />
-        
-        <main>
-          {renderContent()}
-        </main>
-      </div>
-
-      <TransactionModal
-        isOpen={transactionModalOpen}
-        onClose={() => setTransactionModalOpen(false)}
-        onSubmit={handleSubmitTransaction}
-        editingTransaction={editingTransaction}
-      />
-
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: '#363636',
-            color: '#fff',
-          },
-        }}
-      />
-    </div>
+    <Layout
+      activeItem={activeItem}
+      onNavigate={setActiveItem}
+      transactionModalOpen={transactionModalOpen}
+      setTransactionModalOpen={setTransactionModalOpen}
+      editingTransaction={editingTransaction}
+      setEditingTransaction={setEditingTransaction}
+      onSubmitTransaction={handleSubmitTransaction}
+    >
+      {renderContent()}
+    </Layout>
   );
 }
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AppContent />
+      <AuthGuard>
+        <AppContent />
+      </AuthGuard>
     </QueryClientProvider>
   );
 }
