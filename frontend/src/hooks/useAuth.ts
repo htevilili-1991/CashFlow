@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { authAPI } from '../api/auth';
 import toast from 'react-hot-toast';
 
@@ -7,11 +7,15 @@ export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
+  const checkAuth = () => {
     const token = localStorage.getItem('access_token');
     const refreshToken = localStorage.getItem('refresh_token');
     console.log('Checking auth - token exists:', !!token, 'refresh token exists:', !!refreshToken);
     setIsAuthenticated(!!token);
+  };
+
+  useEffect(() => {
+    checkAuth();
   }, []);
 
   const loginMutation = useMutation({
@@ -21,7 +25,7 @@ export const useAuth = () => {
       console.log('Login success - received tokens:', data);
       localStorage.setItem('access_token', data.access);
       localStorage.setItem('refresh_token', data.refresh);
-      setIsAuthenticated(true);
+      checkAuth(); // Re-check authentication state
       toast.success('Login successful!');
     },
     onError: () => {
@@ -43,7 +47,7 @@ export const useAuth = () => {
   const logout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    setIsAuthenticated(false);
+    checkAuth(); // Re-check authentication state
     queryClient.clear();
     toast.success('Logged out successfully!');
   };

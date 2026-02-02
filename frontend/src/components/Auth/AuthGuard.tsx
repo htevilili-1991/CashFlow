@@ -9,6 +9,8 @@ interface AuthGuardProps {
 const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const { isAuthenticated } = useAuth();
 
+  console.log('AuthGuard render - isAuthenticated:', isAuthenticated);
+
   if (!isAuthenticated) {
     return <Login />;
   }
