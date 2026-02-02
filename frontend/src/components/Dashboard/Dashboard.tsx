@@ -1,5 +1,6 @@
 import React from 'react';
 import { Plus, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { formatCurrencyWithSign } from '../../utils/currency';
 import type { Balance, Transaction } from '../../types';
 import BalanceCard from './BalanceCard';
 
@@ -65,7 +66,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                   </div>
                 </div>
                 <div className={`text-lg font-semibold ${isIncome ? 'text-green-600' : 'text-red-600'}`}>
-                  {isIncome ? '+' : '-'}${parseFloat(transaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  {formatCurrencyWithSign(transaction.amount, isIncome)}
                 </div>
               </div>
             );

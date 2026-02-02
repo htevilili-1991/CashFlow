@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, Trash2, Edit, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { formatCurrencyWithSign } from '../../utils/currency';
 import type { Transaction } from '../../types';
 
 interface TransactionListProps {
@@ -130,7 +131,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
                     <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium text-right ${
                       isIncome ? 'text-green-600' : 'text-red-600'
                     }`}>
-                      {isIncome ? '+' : '-'}${parseFloat(transaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      {formatCurrencyWithSign(transaction.amount, isIncome)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
