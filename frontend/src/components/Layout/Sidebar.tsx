@@ -13,9 +13,10 @@ interface SidebarProps {
   onToggle: () => void;
   activeItem: string;
   onNavigate: (item: string) => void;
+  onLogout: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, activeItem, onNavigate }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, activeItem, onNavigate, onLogout }) => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'transactions', label: 'Transactions', icon: Receipt },
@@ -68,7 +69,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, activeItem, onNavig
           })}
           
           <div className="pt-4 mt-4 border-t border-gray-200">
-            <button className="sidebar-item w-full text-red-600 hover:bg-red-50">
+            <button 
+              onClick={onLogout}
+              className="sidebar-item w-full text-red-600 hover:bg-red-50"
+            >
               <LogOut className="w-5 h-5 mr-3" />
               Logout
             </button>
