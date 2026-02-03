@@ -1,7 +1,12 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import TransactionViewSet, CategoryViewSet, EnvelopeViewSet, RegisterView, balance_view, income_view, monthly_rollover_view, SavingsGoalViewSet, RecurringTransactionViewSet
+from .views import (
+    TransactionViewSet, CategoryViewSet, EnvelopeViewSet, RegisterView, 
+    balance_view, income_view, monthly_rollover_view, SavingsGoalViewSet, 
+    RecurringTransactionViewSet, monthly_report, yearly_report, 
+    comparison_report, export_data
+)
 
 router = DefaultRouter()
 router.register(r'transactions', TransactionViewSet, basename='transaction')
@@ -17,5 +22,9 @@ urlpatterns = [
     path('balance/', balance_view, name='balance'),
     path('income/', income_view, name='income'),
     path('monthly-rollover/', monthly_rollover_view, name='monthly_rollover'),
+    path('reports/monthly/', monthly_report, name='monthly_report'),
+    path('reports/yearly/', yearly_report, name='yearly_report'),
+    path('reports/comparison/', comparison_report, name='comparison_report'),
+    path('export/', export_data, name='export_data'),
     path('', include(router.urls)),
 ]

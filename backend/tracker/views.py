@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
-from django.db.models import Sum, Q, F
+from django.db.models import Sum, Q, F, Count
 from django.utils import timezone
 from django.db import transaction
 from datetime import datetime, timedelta
@@ -332,3 +332,359 @@ class RecurringTransactionViewSet(viewsets.ModelViewSet):
             'message': f'Processed {len(created_transactions)} overdue transactions',
             'transactions': created_transactions
         })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def monthly_report(request):
+    """Generate monthly financial report"""
+    year = int(request.GET.get('year', timezone.now().year))
+    month = int(request.GET.get('month', timezone.now().month))
+    
+    # Get all transactions for the month
+    transactions = Transaction.objects.filter(
+        user=request.user,
+        date__year=year,
+        date__month=month
+    ).order_by('date')
+    
+    # Calculate totals
+    income = transactions.filter(transaction_type='income').aggregate(
+        total=Sum('amount')
+    )['total'] or 0
+    
+    expenses = transactions.filter(transaction_type='expense').aggregate(
+        total=Sum('amount')
+    )['total'] or 0
+    
+    net = income - expenses
+    
+    # Category breakdown
+    category_breakdown = transactions.filter(transaction_type='expense').values('category').annotate(
+        amount=Sum('amount'),
+        count=Count('id')
+    ).order_by('-amount')
+    
+    # Daily breakdown
+    daily_breakdown = []
+    for day in range(1, 32):
+        try:
+            date = timezone.datetime(year, month, day).date()
+            day_income = transactions.filter(
+                date=date, transaction_type='income'
+            ).aggregate(total=Sum('amount'))['total'] or 0
+            
+            day_expenses = transactions.filter(
+                date=date, transaction_type='expense'
+            ).aggregate(total=Sum('amount'))['total'] or 0
+            
+            daily_breakdown.append({
+                'date': date.isoformat(),
+                'income': float(day_income),
+                'expenses': float(day_expenses),
+                'net': float(day_income - day_expenses)
+            })
+        except ValueError:
+            break  # Invalid date for this month
+    
+    # Envelope performance
+    envelopes = Envelope.objects.filter(user=request.user)
+    envelope_performance = []
+    for envelope in envelopes:
+        spent = transactions.filter(category=envelope.category.name).aggregate(
+            total=Sum('amount')
+        )['total'] or 0
+        
+        envelope_performance.append({
+            'category': envelope.category.name,
+            'budgeted': float(envelope.budgeted_amount),
+            'spent': float(spent),
+            'remaining': float(envelope.budgeted_amount - spent),
+            'percentage': float((spent / envelope.budgeted_amount * 100) if envelope.budgeted_amount > 0 else 0)
+        })
+    
+    return Response({
+        'period': {
+            'year': year,
+            'month': month,
+            'month_name': timezone.datetime(year, month, 1).strftime('%B %Y')
+        },
+        'summary': {
+            'income': float(income),
+            'expenses': float(expenses),
+            'net': float(net),
+            'transaction_count': transactions.count()
+        },
+        'category_breakdown': [
+            {
+                'category': item['category'],
+                'amount': float(item['amount']),
+                'count': item['count'],
+                'percentage': float((item['amount'] / expenses * 100) if expenses > 0 else 0)
+            }
+            for item in category_breakdown
+        ],
+        'daily_breakdown': daily_breakdown,
+        'envelope_performance': envelope_performance
+    })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def yearly_report(request):
+    """Generate yearly financial report"""
+    year = int(request.GET.get('year', timezone.now().year))
+    
+    # Get all transactions for the year
+    transactions = Transaction.objects.filter(
+        user=request.user,
+        date__year=year
+    ).order_by('date')
+    
+    # Monthly breakdown
+    monthly_breakdown = []
+    for month in range(1, 13):
+        month_transactions = transactions.filter(date__month=month)
+        
+        income = month_transactions.filter(transaction_type='income').aggregate(
+            total=Sum('amount')
+        )['total'] or 0
+        
+        expenses = month_transactions.filter(transaction_type='expense').aggregate(
+            total=Sum('amount')
+        )['total'] or 0
+        
+        monthly_breakdown.append({
+            'month': month,
+            'month_name': timezone.datetime(year, month, 1).strftime('%B'),
+            'income': float(income),
+            'expenses': float(expenses),
+            'net': float(income - expenses),
+            'transaction_count': month_transactions.count()
+        })
+    
+    # Category trends
+    category_trends = {}
+    for transaction in transactions.filter(transaction_type='expense'):
+        category = transaction.category
+        if category not in category_trends:
+            category_trends[category] = {}
+        
+        month = transaction.date.month
+        if month not in category_trends[category]:
+            category_trends[category][month] = 0
+        category_trends[category][month] += float(transaction.amount)
+    
+    # Convert to list format
+    category_trend_data = []
+    for category, monthly_data in category_trends.items():
+        trend_data = {'category': category}
+        for month in range(1, 13):
+            trend_data[f'month_{month}'] = monthly_data.get(month, 0)
+        category_trend_data.append(trend_data)
+    
+    # Top categories
+    top_categories = transactions.filter(transaction_type='expense').values('category').annotate(
+        total=Sum('amount')
+    ).order_by('-total')[:10]
+    
+    return Response({
+        'period': {
+            'year': year
+        },
+        'summary': {
+            'total_income': float(transactions.filter(transaction_type='income').aggregate(total=Sum('amount'))['total'] or 0),
+            'total_expenses': float(transactions.filter(transaction_type='expense').aggregate(total=Sum('amount'))['total'] or 0),
+            'total_net': float(
+                (transactions.filter(transaction_type='income').aggregate(total=Sum('amount'))['total'] or 0) -
+                (transactions.filter(transaction_type='expense').aggregate(total=Sum('amount'))['total'] or 0)
+            ),
+            'transaction_count': transactions.count()
+        },
+        'monthly_breakdown': monthly_breakdown,
+        'category_trends': category_trend_data,
+        'top_categories': [
+            {
+                'category': item['category'],
+                'total': float(item['total'])
+            }
+            for item in top_categories
+        ]
+    })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def comparison_report(request):
+    """Compare current period with previous period"""
+    period_type = request.GET.get('type', 'monthly')  # monthly or yearly
+    current_date = timezone.now()
+    
+    if period_type == 'monthly':
+        # Current month
+        current_year = current_date.year
+        current_month = current_date.month
+        
+        # Previous month
+        if current_month == 1:
+            prev_year = current_year - 1
+            prev_month = 12
+        else:
+            prev_year = current_year
+            prev_month = current_month - 1
+        
+        # Get data for both periods
+        current_transactions = Transaction.objects.filter(
+            user=request.user,
+            date__year=current_year,
+            date__month=current_month
+        )
+        
+        prev_transactions = Transaction.objects.filter(
+            user=request.user,
+            date__year=prev_year,
+            date__month=prev_month
+        )
+        
+        current_period = f"{current_year}-{current_month:02d}"
+        prev_period = f"{prev_year}-{prev_month:02d}"
+        
+    else:  # yearly
+        current_year = current_date.year
+        prev_year = current_year - 1
+        
+        current_transactions = Transaction.objects.filter(
+            user=request.user,
+            date__year=current_year
+        )
+        
+        prev_transactions = Transaction.objects.filter(
+            user=request.user,
+            date__year=prev_year
+        )
+        
+        current_period = str(current_year)
+        prev_period = str(prev_year)
+    
+    def calculate_period_stats(transactions):
+        income = transactions.filter(transaction_type='income').aggregate(
+            total=Sum('amount')
+        )['total'] or 0
+        
+        expenses = transactions.filter(transaction_type='expense').aggregate(
+            total=Sum('amount')
+        )['total'] or 0
+        
+        return {
+            'income': float(income),
+            'expenses': float(expenses),
+            'net': float(income - expenses),
+            'transaction_count': transactions.count()
+        }
+    
+    current_stats = calculate_period_stats(current_transactions)
+    prev_stats = calculate_period_stats(prev_transactions)
+    
+    # Calculate percentage changes
+    def calculate_change(current, previous):
+        if previous == 0:
+            return 0 if current == 0 else 100
+        return ((current - previous) / previous) * 100
+    
+    # Category comparison
+    current_categories = current_transactions.filter(transaction_type='expense').values('category').annotate(
+        total=Sum('amount')
+    )
+    
+    prev_categories = prev_transactions.filter(transaction_type='expense').values('category').annotate(
+        total=Sum('amount')
+    )
+    
+    category_comparison = {}
+    for cat in current_categories:
+        category = cat['category']
+        current_amount = float(cat['total'])
+        prev_amount = 0
+        
+        for prev_cat in prev_categories:
+            if prev_cat['category'] == category:
+                prev_amount = float(prev_cat['total'])
+                break
+        
+        category_comparison[category] = {
+            'current': current_amount,
+            'previous': prev_amount,
+            'change': calculate_change(current_amount, prev_amount)
+        }
+    
+    return Response({
+        'period_type': period_type,
+        'current_period': current_period,
+        'previous_period': prev_period,
+        'current_stats': current_stats,
+        'previous_stats': prev_stats,
+        'changes': {
+            'income_change': calculate_change(current_stats['income'], prev_stats['income']),
+            'expenses_change': calculate_change(current_stats['expenses'], prev_stats['expenses']),
+            'net_change': calculate_change(current_stats['net'], prev_stats['net']),
+            'transaction_count_change': calculate_change(current_stats['transaction_count'], prev_stats['transaction_count'])
+        },
+        'category_comparison': category_comparison
+    })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def export_data(request):
+    """Export transaction data in various formats"""
+    export_format = request.GET.get('format', 'csv')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    transactions = Transaction.objects.filter(user=request.user)
+    
+    if start_date:
+        transactions = transactions.filter(date__gte=start_date)
+    if end_date:
+        transactions = transactions.filter(date__lte=end_date)
+    
+    transactions = transactions.order_by('-date')
+    
+    if export_format == 'csv':
+        import csv
+        from django.http import HttpResponse
+        
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="transactions_{timezone.now().date()}.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow(['Date', 'Description', 'Category', 'Amount', 'Type'])
+        
+        for transaction in transactions:
+            writer.writerow([
+                transaction.date,
+                transaction.description,
+                transaction.category,
+                transaction.amount,
+                transaction.transaction_type
+            ])
+        
+        return response
+    
+    elif export_format == 'json':
+        from django.http import JsonResponse
+        
+        data = []
+        for transaction in transactions:
+            data.append({
+                'date': transaction.date.isoformat(),
+                'description': transaction.description,
+                'category': transaction.category,
+                'amount': float(transaction.amount),
+                'type': transaction.transaction_type
+            })
+        
+        return JsonResponse(data, safe=False)
+    
+    else:
+        return Response({'error': 'Unsupported format'}, status=400)
