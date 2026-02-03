@@ -45,6 +45,7 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar, title }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-4 lg:px-6">
       <div className="flex items-center justify-between">
@@ -169,6 +170,7 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar, title }) => {
                       ))}
                     </div>
                   )}
+                </div>
                 {notifications.length > 0 && (
                   <div className="p-3 border-t border-gray-200">
                     <button 
