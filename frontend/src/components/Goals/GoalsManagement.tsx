@@ -94,8 +94,9 @@ const GoalsManagement: React.FC<GoalsManagementProps> = ({
   const handleContribute = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedGoal || !contributionAmount) return;
-
-    const contributionAmount = parseInt(contributionAmount);
+    
+    const parsedAmount = parseInt(contributionAmount, 10);
+    if (!parsedAmount) return;
     
     // Validate against available savings envelope
     if (!savingsEnvelope) {
@@ -104,13 +105,13 @@ const GoalsManagement: React.FC<GoalsManagementProps> = ({
     }
     
     const availableSavings = Number(savingsEnvelope.remaining_amount);
-    if (contributionAmount > availableSavings) {
-      setValidationError(`Contribution amount (${formatCurrency(contributionAmount)}) exceeds available Savings envelope balance (${formatCurrency(availableSavings)}).`);
+    if (parsedAmount > availableSavings) {
+      setValidationError(`Contribution amount (${formatCurrency(parsedAmount)}) exceeds available Savings envelope balance (${formatCurrency(availableSavings)}).`);
       return;
     }
     
     setValidationError('');
-    onContributeToGoal(selectedGoal.id, contributionAmount);
+    onContributeToGoal(selectedGoal.id, parsedAmount);
     closeContributeModal();
   };
 
@@ -134,6 +135,7 @@ const GoalsManagement: React.FC<GoalsManagementProps> = ({
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingGoal(null);
+    setValidationError('');
     setGoalData({
       name: '',
       target_amount: '',
@@ -145,6 +147,7 @@ const GoalsManagement: React.FC<GoalsManagementProps> = ({
   const closeContributeModal = () => {
     setContributeModalOpen(false);
     setSelectedGoal(null);
+    setValidationError('');
     setContributionAmount('');
   };
 
@@ -286,14 +289,19 @@ const GoalsManagement: React.FC<GoalsManagementProps> = ({
                 </label>
                 <input
                   type="number"
-                  step="0.01"
-                  min="0.01"
+                  step="1"
+                  min="1"
                   value={goalData.target_amount}
                   onChange={(e) => setGoalData({ ...goalData, target_amount: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  placeholder="50000.00"
+                  placeholder="50000"
                   required
                 />
+                {savingsEnvelope && (
+                  <p className="mt-1 text-xs text-gray-500">
+                    Available in Savings envelope: {formatCurrency(Number(savingsEnvelope.budgeted_amount))}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -320,6 +328,17 @@ const GoalsManagement: React.FC<GoalsManagementProps> = ({
                   placeholder="e.g., Technology, Emergency, Travel"
                 />
               </div>
+              
+              {/* Validation Error Display */}
+              {validationError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <div className="flex items-start">
+                    <AlertTriangle className="w-4 h-4 text-red-600 mt-0.5 mr-2 flex-shrink-0" />
+                    <p className="text-sm text-red-700">{validationError}</p>
+                  </div>
+                </div>
+              )}
+              
               <div className="flex justify-end space-x-3 pt-4">
                 <button
                   type="button"
@@ -362,16 +381,32 @@ const GoalsManagement: React.FC<GoalsManagementProps> = ({
                 </label>
                 <input
                   type="number"
-                  step="0.01"
-                  min="0.01"
+                  step="1"
+                  min="1"
                   max={selectedGoal.target_amount - selectedGoal.current_amount}
                   value={contributionAmount}
                   onChange={(e) => setContributionAmount(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="0.00"
+                  placeholder="0"
                   required
                 />
+                {savingsEnvelope && (
+                  <p className="mt-1 text-xs text-gray-500">
+                    Available in Savings envelope: {formatCurrency(Number(savingsEnvelope.remaining_amount))}
+                  </p>
+                )}
               </div>
+              
+              {/* Validation Error Display */}
+              {validationError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <div className="flex items-start">
+                    <AlertTriangle className="w-4 h-4 text-red-600 mt-0.5 mr-2 flex-shrink-0" />
+                    <p className="text-sm text-red-700">{validationError}</p>
+                  </div>
+                </div>
+              )}
+              
               <div className="flex justify-end space-x-3 pt-4">
                 <button
                   type="button"
