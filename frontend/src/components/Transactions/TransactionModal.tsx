@@ -31,6 +31,15 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
   
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // Dynamic placeholders based on transaction type
+  const getDescriptionPlaceholder = () => {
+    if (formData.transaction_type === 'income') {
+      return 'e.g., Monthly salary, Freelance project';
+    } else {
+      return 'e.g., Grocery shopping, Gas station';
+    }
+  };
+
   useEffect(() => {
     if (editingTransaction) {
       setFormData({
@@ -164,7 +173,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
               onChange={handleChange}
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="e.g., Grocery shopping"
+              placeholder={getDescriptionPlaceholder()}
             />
           </div>
 
