@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Wallet, AlertTriangle } from 'lucide-react';
 import type { Transaction } from '../../types';
+import { useEnvelopes } from '../../hooks/useEnvelopes';
+import { formatCurrency } from '../../utils/currency';
 
 interface TransactionModalProps {
   isOpen: boolean;
@@ -15,6 +17,8 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
   onSubmit,
   editingTransaction,
 }) => {
+  const { getEnvelopeByCategoryName } = useEnvelopes();
+  
   const [formData, setFormData] = useState({
     description: '',
     amount: '',
@@ -170,6 +174,91 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
                 </option>
               ))}
             </select>
+            
+            {/* Envelope Balance Display */}
+            {formData.transaction_type === 'expense' && formData.category && (() => {
+              const envelope = getEnvelopeByCategoryName(formData.category);
+              if (envelope) {
+                return (
+                  <div className={`mt-2 p-3 rounded-lg border ${
+                    envelope.is_over_budget 
+                      ? 'bg-red-50 border-red-200' 
+                      : envelope.is_near_limit 
+                      ? 'bg-yellow-50 border-yellow-200'
+                      : 'bg-green-50 border-green-200'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        {envelope.is_over_budget ? (
+                          <AlertTriangle className="w-4 h-4 text-red-500" />
+                        ) : envelope.is_near_limit ? (
+                          <AlertTriangle className="w-4 h-4 text-yellow-500" />
+                        ) : (
+                          <Wallet className="w-4 h-4 text-green-500" />
+                        )}
+                        <span className={`text-sm font-medium ${
+                          envelope.is_over_budget 
+                            ? 'text-red-700' 
+                            : envelope.is_near_limit 
+                            ? 'text-yellow-700'
+                            : 'text-green-700'
+                        }`}>
+                          Envelope Balance
+                        </span>
+                      </div>
+                      <span className={`text-sm font-bold ${
+                        envelope.is_over_budget 
+                          ? 'text-red-700' 
+                          : envelope.is_near_limit 
+                          ? 'text-yellow-700'
+                          : 'text-green-700'
+                      }`}>
+                        {formatCurrency(envelope.remaining_amount)}
+                      </span>
+                    </div>
+                    <div className="mt-2">
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className={envelope.is_over_budget || envelope.is_near_limit ? 'text-red-600' : 'text-gray-600'}>
+                          {envelope.percentage_used.toFixed(1)}% used
+                        </span>
+                        <span className="text-gray-600">
+                          {formatCurrency(envelope.budgeted_amount)} budgeted
+                        </span>
+                      </div>
+                      <div className={`w-full rounded-full h-1.5 ${
+                        envelope.is_over_budget 
+                          ? 'bg-red-100' 
+                          : envelope.is_near_limit 
+                          ? 'bg-yellow-100'
+                          : 'bg-green-100'
+                      }`}>
+                        <div
+                          className={`h-1.5 rounded-full transition-all duration-300 ${
+                            envelope.is_over_budget 
+                              ? 'bg-red-500' 
+                              : envelope.is_near_limit 
+                              ? 'bg-yellow-500'
+                              : 'bg-green-500'
+                          }`}
+                          style={{ width: `${Math.min(envelope.percentage_used, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                    {envelope.is_over_budget && (
+                      <p className="text-xs text-red-600 mt-1">
+                        Over budget by {formatCurrency(Math.abs(parseFloat(envelope.remaining_amount)))}
+                      </p>
+                    )}
+                    {envelope.is_near_limit && !envelope.is_over_budget && (
+                      <p className="text-xs text-yellow-600 mt-1">
+                        Near budget limit
+                      </p>
+                    )}
+                  </div>
+                );
+              }
+              return null;
+            })()}
           </div>
 
           <div>
