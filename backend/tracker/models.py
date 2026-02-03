@@ -4,16 +4,22 @@ from decimal import Decimal
 
 
 class Category(models.Model):
+    TRANSACTION_TYPES = [
+        ('income', 'Income'),
+        ('expense', 'Expense'),
+    ]
+    
     name = models.CharField(max_length=100)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='categories')
+    transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPES, default='expense')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name_plural = "Categories"
-        unique_together = ['name', 'user']
+        unique_together = ['name', 'user', 'transaction_type']
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.get_transaction_type_display()})"
 
 
 class Envelope(models.Model):

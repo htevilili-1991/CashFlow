@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, Wallet, AlertTriangle } from 'lucide-react';
+import { X, Bell, Search, AlertTriangle, Wallet } from 'lucide-react';
 import type { Transaction } from '../../types';
 import { useEnvelopes } from '../../hooks/useEnvelopes';
+import { useCategories } from '../../hooks/useCategories';
 import { formatCurrency } from '../../utils/currency';
 
 interface TransactionModalProps {
@@ -18,6 +19,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
   editingTransaction,
 }) => {
   const { getEnvelopeByCategoryName } = useEnvelopes();
+  const { categories } = useCategories();
   
   const [formData, setFormData] = useState({
     description: '',
@@ -28,11 +30,6 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
   });
   
   const [submitError, setSubmitError] = useState<string | null>(null);
-
-  const categories = [
-    'Salary', 'Freelance', 'Investment', 'Food', 'Transport', 
-    'Entertainment', 'Shopping', 'Bills', 'Healthcare', 'Education', 'Other'
-  ];
 
   useEffect(() => {
     if (editingTransaction) {
@@ -202,9 +199,9 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
               <option value="">Select a category</option>
-              {categories.map(category => (
-                <option key={category} value={category}>
-                  {category}
+              {(categories as any[]).filter((cat: any) => cat.transaction_type === formData.transaction_type).map((category: any) => (
+                <option key={category.id} value={category.name}>
+                  {category.name}
                 </option>
               ))}
             </select>

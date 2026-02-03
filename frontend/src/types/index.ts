@@ -20,6 +20,7 @@ export interface Category {
   id: number;
   name: string;
   user: number;
+  transaction_type: 'income' | 'expense';
   created_at: string;
 }
 

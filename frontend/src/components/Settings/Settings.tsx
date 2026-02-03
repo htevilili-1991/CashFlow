@@ -1,5 +1,5 @@
 import React from 'react';
-import CategoryList from '../Categories/CategoryList';
+import CategoryManagement from './CategoryManagement';
 
 const Settings: React.FC = () => {
   return (
@@ -10,17 +10,14 @@ const Settings: React.FC = () => {
       </div>
 
       <div className="space-y-8">
-        {/* Category Management Section */}
+        {/* Income Categories Section */}
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Category Management</h2>
-            <p className="text-sm text-gray-600 mt-1">
-              Add, edit, or delete transaction categories for better organization
-            </p>
-          </div>
-          <div className="p-6">
-            <CategoryList />
-          </div>
+          <CategoryManagement transactionType="income" />
+        </div>
+
+        {/* Expense Categories Section */}
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+          <CategoryManagement transactionType="expense" />
         </div>
 
         {/* Other Settings Sections (placeholder for future features) */}

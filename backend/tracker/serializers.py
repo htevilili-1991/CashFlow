@@ -25,6 +25,12 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('user',)
 
+    def validate(self, data):
+        """Validate that category belongs to the user and transaction_type is valid"""
+        if 'transaction_type' in data and data['transaction_type'] not in ['income', 'expense']:
+            raise serializers.ValidationError("Transaction type must be 'income' or 'expense'.")
+        return data
+
 
 class EnvelopeSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)

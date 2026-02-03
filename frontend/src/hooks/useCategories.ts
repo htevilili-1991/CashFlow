@@ -53,8 +53,8 @@ export const useCategories = () => {
   });
 
   const updateCategoryMutation = useMutation({
-    mutationFn: ({ id, name }: { id: number; name: string }) =>
-      categoriesAPI.updateCategory(id, name),
+    mutationFn: ({ id, data }: { id: number; data: any }) =>
+      categoriesAPI.updateCategory(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       toast.success('Category updated successfully!');

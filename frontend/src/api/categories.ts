@@ -7,13 +7,13 @@ export const categoriesAPI = {
     return response.data;
   },
 
-  createCategory: async (name: string): Promise<Category> => {
-    const response = await api.post('/categories/', { name });
+  createCategory: async (data: { name: string; transaction_type: 'income' | 'expense' }): Promise<Category> => {
+    const response = await api.post('/categories/', data);
     return response.data;
   },
 
-  updateCategory: async (id: number, name: string): Promise<Category> => {
-    const response = await api.put(`/categories/${id}/`, { name });
+  updateCategory: async (id: number, data: any): Promise<Category> => {
+    const response = await api.put(`/categories/${id}/`, data);
     return response.data;
   },
 
