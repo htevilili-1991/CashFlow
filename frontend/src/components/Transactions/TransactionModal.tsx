@@ -188,10 +188,10 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
               value={formData.amount}
               onChange={handleChange}
               required
-              step="0.01"
-              min="0.01"
+              step="1"
+              min="1"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="VT 0.00"
+              placeholder="VT 0"
             />
           </div>
 
@@ -301,30 +301,40 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
             })()}
           </div>
 
-          <div>
-            <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
-              Date
-            </label>
-            <input
-              type="date"
-              id="date"
-              name="date"
-              value={formData.date}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-            />
-          </div>
+  <div>
+    <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
+      Date
+    </label>
+    <input
+      type="date"
+      id="date"
+      name="date"
+      value={formData.date}
+      onChange={handleChange}
+      required
+      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+    />
+  </div>
 
-          <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn-secondary"
-            >
-              Cancel
-            </button>
-            <button
+  <div className="flex justify-end space-x-3 pt-4">
+    <button
+      type="button"
+      onClick={onClose}
+      className="btn-secondary"
+    >
+      Cancel
+    </button>
+    <button
+      type="submit"
+      className="btn-primary"
+    >
+      {editingTransaction ? 'Update' : 'Add'} Transaction
+    </button>
+  </div>
+</form>
+</div>
+</div>
+);
               type="submit"
               className="btn-primary"
             >

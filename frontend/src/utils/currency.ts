@@ -2,14 +2,18 @@
  * Currency formatting utilities for Vanuatu Vatu (VT)
  */
 
-export const formatCurrency = (amount: string | number): string => {
-  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  return `VT ${numAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+export const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('en-VU', {
+    style: 'currency',
+    currency: 'VUV',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
 };
 
 export const formatCurrencyWithSign = (amount: string | number, isIncome: boolean): string => {
   const sign = isIncome ? '+' : '-';
-  return `${sign} ${formatCurrency(amount)}`;
+  return `${sign} ${formatCurrency(Number(amount))}`;
 };
 
 export const CURRENCY_CODE = 'VT';

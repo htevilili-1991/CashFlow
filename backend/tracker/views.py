@@ -92,34 +92,47 @@ class EnvelopeViewSet(viewsets.ModelViewSet):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def balance_view(request):
+    """Get user's current balance and monthly totals"""
     user = request.user
-    transactions = Transaction.objects.filter(user=user)
     
-    # Total calculations
-    total_income = transactions.filter(transaction_type='income').aggregate(
-        total=Sum('amount'))['total'] or 0
-    total_expenses = transactions.filter(transaction_type='expense').aggregate(
-        total=Sum('amount'))['total'] or 0
+    # Calculate total income and expenses
+    total_income = Transaction.objects.filter(
+        user=user, 
+        transaction_type='income'
+    ).aggregate(total=Sum('amount'))['total'] or 0
+    
+    total_expenses = Transaction.objects.filter(
+        user=user, 
+        transaction_type='expense'
+    ).aggregate(total=Sum('amount'))['total'] or 0
+    
     balance = total_income - total_expenses
     
-    # Monthly calculations
-    current_month = timezone.now().replace(day=1)
-    monthly_transactions = transactions.filter(date__gte=current_month)
-    monthly_income = monthly_transactions.filter(transaction_type='income').aggregate(
-        total=Sum('amount'))['total'] or 0
-    monthly_expenses = monthly_transactions.filter(transaction_type='expense').aggregate(
-        total=Sum('amount'))['total'] or 0
-
-    data = {
+    # Calculate monthly income and expenses
+    current_month = timezone.now().month
+    current_year = timezone.now().year
+    
+    monthly_income = Transaction.objects.filter(
+        user=user,
+        transaction_type='income',
+        date__month=current_month,
+        date__year=current_year
+    ).aggregate(total=Sum('amount'))['total'] or 0
+    
+    monthly_expenses = Transaction.objects.filter(
+        user=user,
+        transaction_type='expense',
+        date__month=current_month,
+        date__year=current_year
+    ).aggregate(total=Sum('amount'))['total'] or 0
+    
+    return Response({
         'total_income': total_income,
         'total_expenses': total_expenses,
         'balance': balance,
         'monthly_income': monthly_income,
-        'monthly_expenses': monthly_expenses,
-    }
-
-    serializer = BalanceSerializer(data)
-    return Response(serializer.data)
+        'monthly_expenses': monthly_expenses
+    })
 
 
 @api_view(['GET'])
@@ -130,27 +143,31 @@ def income_view(request):
     
     # Get total income (excluding income allocations to avoid double counting)
     total_income = Transaction.objects.filter(
-        user=user, 
+        user=user,
         transaction_type='income'
-    ).exclude(
-        category='Income Allocation'
     ).aggregate(total=Sum('amount'))['total'] or 0
     
     # Get total allocated to envelopes
-    total_allocated = Envelope.objects.filter(user=user).aggregate(
-        total=Sum('budgeted_amount')
-    )['total'] or 0
+    total_allocated = Envelope.objects.filter(
+        user=user
+    ).aggregate(total=Sum('budgeted_amount'))['total'] or 0
     
-    # Calculate available income
-    available_income = total_income - total_allocated
+    # Get total spent from envelopes
+    total_spent = Transaction.objects.filter(
+        user=user,
+        transaction_type='expense'
+    ).aggregate(total=Sum('amount'))['total'] or 0
     
-    data = {
+    # Calculate remaining to allocate
+    remaining_to_allocate = total_income - total_allocated
+    
+    return Response({
         'total_income': total_income,
         'total_allocated': total_allocated,
-        'available_income': available_income,
-    }
-    
-    return Response(data)
+        'total_spent': total_spent,
+        'remaining_to_allocate': remaining_to_allocate,
+        'allocation_percentage': (total_allocated / total_income * 100) if total_income > 0 else 0
+    })
 
 
 @api_view(['POST'])
@@ -218,7 +235,7 @@ class SavingsGoalViewSet(viewsets.ModelViewSet):
     def contribute(self, request, pk=None):
         """Add contribution to a savings goal"""
         goal = self.get_object()
-        amount = Decimal(request.data.get('amount', 0))
+        amount = int(request.data.get('amount', 0))  # Changed from Decimal to int
         
         if amount <= 0:
             return Response(

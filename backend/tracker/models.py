@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 from decimal import Decimal
 
 
@@ -24,16 +25,17 @@ class Category(models.Model):
 
 class Envelope(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='envelopes')
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='envelopes')
-    budgeted_amount = models.DecimalField(max_digits=12, decimal_places=2)
+    category = models.OneToOneField(Category, on_delete=models.CASCADE)
+    budgeted_amount = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        ordering = ['category__name']
         unique_together = ['user', 'category']
 
     def __str__(self):
-        return f"{self.user.username} - {self.category.name}: VT {self.budgeted_amount}"
+        return f"{self.category.name} - {self.budgeted_amount} VT"
 
     @property
     def spent_amount(self):
@@ -43,7 +45,7 @@ class Envelope(models.Model):
             user=self.user,
             category=self.category.name,
             transaction_type='expense'
-        ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+        ).aggregate(total=Sum('amount'))['total'] or 0
 
     @property
     def remaining_amount(self):
@@ -75,11 +77,11 @@ class Transaction(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='transactions')
-    date = models.DateField()
     description = models.CharField(max_length=255)
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    amount = models.IntegerField()
     category = models.CharField(max_length=100)
     transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPES)
+    date = models.DateField(default=timezone.now)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -87,7 +89,7 @@ class Transaction(models.Model):
         ordering = ['-date', '-created_at']
 
     def __str__(self):
-        return f"{self.user.username} - {self.transaction_type}: {self.amount}"
+        return f"{self.description} - {self.amount} VT ({self.transaction_type})"
 
     @property
     def is_income(self):
@@ -101,8 +103,8 @@ class Transaction(models.Model):
 class SavingsGoal(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='savings_goals')
     name = models.CharField(max_length=200)
-    target_amount = models.DecimalField(max_digits=12, decimal_places=2)
-    current_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    target_amount = models.IntegerField()  # Changed from DecimalField to IntegerField
+    current_amount = models.IntegerField(default=0)  # Changed from DecimalField to IntegerField
     target_date = models.DateField()
     is_completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -153,7 +155,7 @@ class RecurringTransaction(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recurring_transactions')
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, blank=True)
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    amount = models.IntegerField()  # Changed from DecimalField to IntegerField
     category = models.CharField(max_length=100)
     transaction_type = models.CharField(max_length=10, choices=Transaction.TRANSACTION_TYPES)
     frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES)

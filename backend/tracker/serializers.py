@@ -35,8 +35,8 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class EnvelopeSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
-    spent_amount = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
-    remaining_amount = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+    spent_amount = serializers.IntegerField(read_only=True)
+    remaining_amount = serializers.IntegerField(read_only=True)
     percentage_used = serializers.FloatField(read_only=True)
     is_over_budget = serializers.BooleanField(read_only=True)
     is_near_limit = serializers.BooleanField(read_only=True)
@@ -122,16 +122,16 @@ class TransactionSerializer(serializers.ModelSerializer):
 
 
 class BalanceSerializer(serializers.Serializer):
-    total_income = serializers.DecimalField(max_digits=12, decimal_places=2)
-    total_expenses = serializers.DecimalField(max_digits=12, decimal_places=2)
-    balance = serializers.DecimalField(max_digits=12, decimal_places=2)
-    monthly_income = serializers.DecimalField(max_digits=12, decimal_places=2)
-    monthly_expenses = serializers.DecimalField(max_digits=12, decimal_places=2)
+    total_income = serializers.IntegerField()
+    total_expenses = serializers.IntegerField()
+    balance = serializers.IntegerField()
+    monthly_income = serializers.IntegerField()
+    monthly_expenses = serializers.IntegerField()
 
 
 class SavingsGoalSerializer(serializers.ModelSerializer):
     progress_percentage = serializers.FloatField(read_only=True)
-    remaining_amount = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+    remaining_amount = serializers.IntegerField(read_only=True)  # Changed from DecimalField to IntegerField
 
     class Meta:
         model = SavingsGoal
