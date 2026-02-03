@@ -16,6 +16,15 @@ export const useSavingsGoals = () => {
       try {
         const result = await savingsGoalsAPI.getSavingsGoals();
         console.log('Savings goals API response:', result);
+        console.log('Savings goals API response type:', typeof result);
+        console.log('Savings goals API response isArray:', Array.isArray(result));
+        
+        // Handle paginated response
+        if (result && typeof result === 'object' && 'results' in result) {
+          console.log('Detected paginated response, using results array');
+          return result.results;
+        }
+        
         return result;
       } catch (error) {
         console.error('Error fetching savings goals:', error);
