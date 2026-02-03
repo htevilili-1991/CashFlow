@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { AuthGuard } from './components/Auth/AuthGuard';
-import { Layout } from './components/Layout/Layout';
-import { Dashboard } from './components/Dashboard/Dashboard';
+import AuthGuard from './components/Auth/AuthGuard';
+import Layout from './components/Layout/Layout';
+import Dashboard from './components/Dashboard/Dashboard';
 import TransactionList from './components/Transactions/TransactionList';
 import TransactionModal from './components/Transactions/TransactionModal';
 import Envelopes from './components/Envelopes/Envelopes';
