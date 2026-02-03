@@ -126,3 +126,24 @@ class BalanceSerializer(serializers.Serializer):
     balance = serializers.DecimalField(max_digits=12, decimal_places=2)
     monthly_income = serializers.DecimalField(max_digits=12, decimal_places=2)
     monthly_expenses = serializers.DecimalField(max_digits=12, decimal_places=2)
+
+
+class SavingsGoalSerializer(serializers.ModelSerializer):
+    progress_percentage = serializers.FloatField(read_only=True)
+    remaining_amount = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+
+    class Meta:
+        model = SavingsGoal
+        fields = '__all__'
+        read_only_fields = ('user', 'is_completed', 'created_at', 'updated_at')
+
+    def validate(self, data):
+        """Validate target amount and target date"""
+        if data.get('target_amount', 0) <= 0:
+            raise serializers.ValidationError("Target amount must be greater than 0.")
+        
+        target_date = data.get('target_date')
+        if target_date and target_date <= timezone.now().date():
+            raise serializers.ValidationError("Target date must be in the future.")
+        
+        return data

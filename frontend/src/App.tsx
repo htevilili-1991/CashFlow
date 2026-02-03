@@ -1,14 +1,15 @@
-import { useState } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import Dashboard from './components/Dashboard/Dashboard';
+import React, { useState } from 'react';
+import { AuthGuard } from './components/Auth/AuthGuard';
+import { Layout } from './components/Layout/Layout';
+import { Dashboard } from './components/Dashboard/Dashboard';
 import TransactionList from './components/Transactions/TransactionList';
 import TransactionModal from './components/Transactions/TransactionModal';
-import AuthGuard from './components/Auth/AuthGuard';
-import Layout from './components/Layout/Layout';
-import Settings from './components/Settings/Settings';
 import Envelopes from './components/Envelopes/Envelopes';
+import Settings from './components/Settings/Settings';
+import Goals from './components/Goals/Goals';
 import { useTransactions } from './hooks/useTransactions';
 import type { Transaction } from './types';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,8 @@ function AppContent() {
         return 'Transactions';
       case 'envelopes':
         return 'Envelopes';
+      case 'goals':
+        return 'Savings Goals';
       case 'settings':
         return 'Settings';
       default:
@@ -85,6 +88,8 @@ function AppContent() {
         );
       case 'envelopes':
         return <Envelopes />;
+      case 'goals':
+        return <Goals />;
       case 'settings':
         return <Settings />;
       default:

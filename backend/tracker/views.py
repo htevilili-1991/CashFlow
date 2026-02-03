@@ -8,10 +8,10 @@ from django.db.models import Sum, Q, F
 from django.utils import timezone
 from django.db import transaction
 from datetime import datetime, timedelta
-from .models import Transaction, Category, Envelope
+from .models import Transaction, Category, Envelope, SavingsGoal
 from .serializers import (
     UserSerializer, TransactionSerializer, 
-    CategorySerializer, BalanceSerializer, EnvelopeSerializer
+    CategorySerializer, BalanceSerializer, EnvelopeSerializer, SavingsGoalSerializer
 )
 
 
@@ -201,3 +201,43 @@ def monthly_rollover_view(request):
             'reset_overspent': reset_overspent
         }
     })
+
+
+class SavingsGoalViewSet(viewsets.ModelViewSet):
+    serializer_class = SavingsGoalSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return SavingsGoal.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    @action(detail=True, methods=['post'])
+    def contribute(self, request, pk=None):
+        """Add contribution to a savings goal"""
+        goal = self.get_object()
+        amount = Decimal(request.data.get('amount', 0))
+        
+        if amount <= 0:
+            return Response(
+                {'error': 'Contribution amount must be positive'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Update goal current amount
+        goal.current_amount += amount
+        goal.save()
+        
+        # Create a transaction record for the contribution
+        Transaction.objects.create(
+            user=request.user,
+            description=f"Contribution to {goal.name}",
+            amount=amount,
+            category='Savings Goal',
+            transaction_type='expense',
+            date=timezone.now().date()
+        )
+        
+        serializer = self.get_serializer(goal)
+        return Response(serializer.data)

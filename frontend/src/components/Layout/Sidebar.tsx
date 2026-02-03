@@ -1,12 +1,13 @@
 import React from 'react';
 import { 
+  Home, 
+  CreditCard, 
+  Wallet, 
+  Settings, 
   Menu, 
   X, 
-  LayoutDashboard, 
-  Receipt, 
-  Settings, 
   LogOut,
-  Wallet
+  PiggyBank
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -21,9 +22,10 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, activeItem, onNavigate, onLogout, isCollapsed, onToggleCollapse }) => {
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'transactions', label: 'Transactions', icon: Receipt },
+    { id: 'dashboard', label: 'Dashboard', icon: Home },
+    { id: 'transactions', label: 'Transactions', icon: CreditCard },
     { id: 'envelopes', label: 'Envelopes', icon: Wallet },
+    { id: 'goals', label: 'Savings Goals', icon: PiggyBank },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
