@@ -5,7 +5,8 @@ import {
   LayoutDashboard, 
   Receipt, 
   Settings, 
-  LogOut
+  LogOut,
+  Wallet
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -22,6 +23,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, activeItem, onNavig
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'transactions', label: 'Transactions', icon: Receipt },
+    { id: 'envelopes', label: 'Envelopes', icon: Wallet },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 

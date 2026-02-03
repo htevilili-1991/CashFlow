@@ -1,16 +1,17 @@
 from rest_framework import viewsets, status, permissions
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
-from django.db.models import Sum, Q
+from django.db.models import Sum, Q, F
 from django.utils import timezone
+from django.db import transaction
 from datetime import datetime, timedelta
-from .models import Transaction, Category
+from .models import Transaction, Category, Envelope
 from .serializers import (
     UserSerializer, TransactionSerializer, 
-    CategorySerializer, BalanceSerializer
+    CategorySerializer, BalanceSerializer, EnvelopeSerializer
 )
 
 
@@ -45,6 +46,39 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class EnvelopeViewSet(viewsets.ModelViewSet):
+    serializer_class = EnvelopeSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Envelope.objects.filter(user=self.request.user).select_related('category')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    @action(detail=False, methods=['get'])
+    def summary(self, request):
+        """Get envelope summary statistics"""
+        envelopes = self.get_queryset()
+        
+        total_budgeted = sum(envelope.budgeted_amount for envelope in envelopes)
+        total_spent = sum(envelope.spent_amount for envelope in envelopes)
+        total_remaining = sum(envelope.remaining_amount for envelope in envelopes)
+        
+        over_budget_count = sum(1 for envelope in envelopes if envelope.is_over_budget)
+        near_limit_count = sum(1 for envelope in envelopes if envelope.is_near_limit and not envelope.is_over_budget)
+        
+        return Response({
+            'total_envelopes': envelopes.count(),
+            'total_budgeted': total_budgeted,
+            'total_spent': total_spent,
+            'total_remaining': total_remaining,
+            'over_budget_count': over_budget_count,
+            'near_limit_count': near_limit_count,
+            'envelopes': EnvelopeSerializer(envelopes, many=True, context={'request': request}).data
+        })
 
 
 @api_view(['GET'])

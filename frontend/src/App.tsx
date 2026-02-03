@@ -6,6 +6,7 @@ import TransactionModal from './components/Transactions/TransactionModal';
 import AuthGuard from './components/Auth/AuthGuard';
 import Layout from './components/Layout/Layout';
 import Settings from './components/Settings/Settings';
+import Envelopes from './components/Envelopes/Envelopes';
 import { useTransactions } from './hooks/useTransactions';
 import type { Transaction } from './types';
 
@@ -42,6 +43,21 @@ function AppContent() {
     setEditingTransaction(null);
   };
 
+  const getPageTitle = () => {
+    switch (activeItem) {
+      case 'dashboard':
+        return 'Dashboard';
+      case 'transactions':
+        return 'Transactions';
+      case 'envelopes':
+        return 'Envelopes';
+      case 'settings':
+        return 'Settings';
+      default:
+        return 'Dashboard';
+    }
+  };
+
   const renderContent = () => {
     switch (activeItem) {
       case 'dashboard':
@@ -67,6 +83,8 @@ function AppContent() {
             onDeleteTransaction={handleDeleteTransaction}
           />
         );
+      case 'envelopes':
+        return <Envelopes />;
       case 'settings':
         return <Settings />;
       default:
