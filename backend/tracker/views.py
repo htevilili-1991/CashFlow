@@ -8,6 +8,7 @@ from django.db.models import Sum, Q, F, Count
 from django.utils import timezone
 from django.db import transaction
 from datetime import datetime, timedelta
+from decimal import Decimal
 from .models import Transaction, Category, Envelope, SavingsGoal, RecurringTransaction
 from .serializers import (
     UserSerializer, TransactionSerializer, 
