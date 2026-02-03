@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Plus, Target, Calendar, TrendingUp, PiggyBank } from 'lucide-react';
+import { Plus, Target, Calendar, TrendingUp, PiggyBank, AlertTriangle } from 'lucide-react';
 import SavingsGoal from './SavingsGoal';
 import { formatCurrency } from '../../utils/currency';
+import { useEnvelopes } from '../../hooks/useEnvelopes';
 
 interface Goal {
   id: number;
@@ -29,10 +30,12 @@ const GoalsManagement: React.FC<GoalsManagementProps> = ({
   onDeleteGoal,
   onContributeToGoal,
 }) => {
+  const { envelopes } = useEnvelopes();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [contributeModalOpen, setContributeModalOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
+  const [validationError, setValidationError] = useState('');
   
   const [goalData, setGoalData] = useState({
     name: '',
@@ -43,13 +46,38 @@ const GoalsManagement: React.FC<GoalsManagementProps> = ({
   
   const [contributionAmount, setContributionAmount] = useState('');
 
+  // Get Savings envelope
+  const savingsEnvelope = envelopes.find(env => env.category_name === 'Savings');
+
+  const validateTargetAmount = (amount: number) => {
+    if (!savingsEnvelope) {
+      setValidationError('No Savings envelope found. Please create a Savings envelope first.');
+      return false;
+    }
+    
+    if (amount > Number(savingsEnvelope.budgeted_amount)) {
+      setValidationError(`Target amount (${formatCurrency(amount)}) exceeds Savings envelope allocation (${formatCurrency(Number(savingsEnvelope.budgeted_amount))}). Please increase your Savings envelope allocation first.`);
+      return false;
+    }
+    
+    setValidationError('');
+    return true;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!goalData.name || !goalData.target_amount || !goalData.target_date) return;
 
+    const targetAmount = parseInt(goalData.target_amount);
+    
+    // Validate against Savings envelope
+    if (!validateTargetAmount(targetAmount)) {
+      return; // Validation failed, error message is set
+    }
+
     const goalPayload = {
       name: goalData.name,
-      target_amount: parseFloat(goalData.target_amount),
+      target_amount: targetAmount,
       target_date: goalData.target_date,
       category_name: goalData.category_name || 'Savings Goal'
     };
@@ -67,7 +95,22 @@ const GoalsManagement: React.FC<GoalsManagementProps> = ({
     e.preventDefault();
     if (!selectedGoal || !contributionAmount) return;
 
-    onContributeToGoal(selectedGoal.id, parseFloat(contributionAmount));
+    const contributionAmount = parseInt(contributionAmount);
+    
+    // Validate against available savings envelope
+    if (!savingsEnvelope) {
+      setValidationError('No Savings envelope found. Please create a Savings envelope first.');
+      return;
+    }
+    
+    const availableSavings = Number(savingsEnvelope.remaining_amount);
+    if (contributionAmount > availableSavings) {
+      setValidationError(`Contribution amount (${formatCurrency(contributionAmount)}) exceeds available Savings envelope balance (${formatCurrency(availableSavings)}).`);
+      return;
+    }
+    
+    setValidationError('');
+    onContributeToGoal(selectedGoal.id, contributionAmount);
     closeContributeModal();
   };
 

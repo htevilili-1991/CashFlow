@@ -55,8 +55,15 @@ class EnvelopeSerializer(serializers.ModelSerializer):
         """Validate that category belongs to the user"""
         if 'category' in data:
             user = self.context['request'].user
-            if data['category'].user != user:
-                raise serializers.ValidationError("Category must belong to the current user.")
+            # Handle both category object and category ID
+            category_id = data['category'] if isinstance(data['category'], int) else data['category'].id
+            try:
+                category_obj = Category.objects.get(id=category_id, user=user)
+            except Category.DoesNotExist:
+                raise serializers.ValidationError("Category not found or does not belong to the current user.")
+            
+            # Replace category ID with the actual category object
+            data['category'] = category_obj
         return data
 
 

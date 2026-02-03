@@ -320,6 +320,8 @@ class RecurringTransactionViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def overdue(self, request):
         """Get overdue recurring transactions"""
+        from datetime import date
+        
         overdue = self.get_queryset().filter(
             next_occurrence__lt=date.today(),
             status='active'
