@@ -131,3 +131,139 @@ class SavingsGoal(models.Model):
         elif self.current_amount < self.target_amount and self.is_completed:
             self.is_completed = False
         super().save(*args, **kwargs)
+
+
+class RecurringTransaction(models.Model):
+    FREQUENCY_CHOICES = [
+        ('daily', 'Daily'),
+        ('weekly', 'Weekly'),
+        ('biweekly', 'Bi-weekly'),
+        ('monthly', 'Monthly'),
+        ('bimonthly', 'Bi-monthly'),
+        ('quarterly', 'Quarterly'),
+        ('yearly', 'Yearly'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('paused', 'Paused'),
+        ('completed', 'Completed'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recurring_transactions')
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, blank=True)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    category = models.CharField(max_length=100)
+    transaction_type = models.CharField(max_length=10, choices=Transaction.TRANSACTION_TYPES)
+    frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES)
+    start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
+    next_occurrence = models.DateField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    count_created = models.PositiveIntegerField(default=0)
+    max_occurrences = models.PositiveIntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    last_created = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['next_occurrence']
+        verbose_name = "Recurring Transaction"
+        verbose_name_plural = "Recurring Transactions"
+
+    def __str__(self):
+        return f"{self.name} - {self.get_frequency_display()} ({self.transaction_type})"
+
+    def calculate_next_occurrence(self):
+        """Calculate the next occurrence date based on frequency"""
+        from datetime import timedelta, date
+        import calendar
+
+        current = self.next_occurrence or self.start_date
+        
+        if self.frequency == 'daily':
+            next_date = current + timedelta(days=1)
+        elif self.frequency == 'weekly':
+            next_date = current + timedelta(weeks=1)
+        elif self.frequency == 'biweekly':
+            next_date = current + timedelta(weeks=2)
+        elif self.frequency == 'monthly':
+            # Add one month, handling month length variations
+            year = current.year
+            month = current.month + 1
+            if month > 12:
+                month = 1
+                year += 1
+            day = min(current.day, calendar.monthrange(year, month)[1])
+            next_date = date(year, month, day)
+        elif self.frequency == 'bimonthly':
+            # Add two months
+            year = current.year
+            month = current.month + 2
+            if month > 12:
+                month = month - 12
+                year += 1
+            day = min(current.day, calendar.monthrange(year, month)[1])
+            next_date = date(year, month, day)
+        elif self.frequency == 'quarterly':
+            # Add three months
+            year = current.year
+            month = current.month + 3
+            if month > 12:
+                month = month - 12
+                year += 1
+            day = min(current.day, calendar.monthrange(year, month)[1])
+            next_date = date(year, month, day)
+        elif self.frequency == 'yearly':
+            # Add one year
+            next_date = date(current.year + 1, current.month, current.day)
+        else:
+            next_date = current
+
+        # Check if we've reached the end date or max occurrences
+        if self.end_date and next_date > self.end_date:
+            return None
+        if self.max_occurrences and self.count_created >= self.max_occurrences:
+            return None
+
+        return next_date
+
+    def create_transaction(self):
+        """Create an actual transaction from this recurring template"""
+        transaction = Transaction.objects.create(
+            user=self.user,
+            description=f"{self.name} (Recurring)",
+            amount=self.amount,
+            category=self.category,
+            transaction_type=self.transaction_type,
+            date=self.next_occurrence,
+        )
+        
+        # Update recurring transaction metadata
+        self.count_created += 1
+        self.last_created = timezone.now()
+        
+        # Calculate next occurrence
+        next_date = self.calculate_next_occurrence()
+        if next_date:
+            self.next_occurrence = next_date
+        else:
+            # No more occurrences, mark as completed
+            self.status = 'completed'
+        
+        self.save()
+        return transaction
+
+    @property
+    def is_overdue(self):
+        """Check if the next occurrence is past due"""
+        from datetime import date
+        return self.next_occurrence < date.today() and self.status == 'active'
+
+    @property
+    def days_until_next(self):
+        """Calculate days until next occurrence"""
+        from datetime import date
+        delta = self.next_occurrence - date.today()
+        return delta.days

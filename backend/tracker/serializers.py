@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Transaction, Category, Envelope, SavingsGoal
+from .models import Transaction, Category, Envelope, SavingsGoal, RecurringTransaction
 from django.utils import timezone
 from django.db.models import Sum
 
@@ -148,3 +148,39 @@ class SavingsGoalSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Target date must be in the future.")
         
         return data
+
+
+class RecurringTransactionSerializer(serializers.ModelSerializer):
+    is_overdue = serializers.BooleanField(read_only=True)
+    days_until_next = serializers.IntegerField(read_only=True)
+    frequency_display = serializers.CharField(source='get_frequency_display', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+
+    class Meta:
+        model = RecurringTransaction
+        fields = '__all__'
+        read_only_fields = ('user', 'count_created', 'created_at', 'updated_at', 'last_created')
+
+    def validate(self, data):
+        """Validate recurring transaction data"""
+        if data.get('amount', 0) <= 0:
+            raise serializers.ValidationError("Amount must be greater than 0.")
+        
+        start_date = data.get('start_date')
+        end_date = data.get('end_date')
+        
+        if end_date and start_date and end_date <= start_date:
+            raise serializers.ValidationError("End date must be after start date.")
+        
+        if start_date and start_date < timezone.now().date():
+            raise serializers.ValidationError("Start date cannot be in the past.")
+        
+        return data
+
+    def create(self, validated_data):
+        """Create recurring transaction and set next occurrence"""
+        # Set next_occurrence to start_date if not provided
+        if 'next_occurrence' not in validated_data:
+            validated_data['next_occurrence'] = validated_data['start_date']
+        
+        return super().create(validated_data)

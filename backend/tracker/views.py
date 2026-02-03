@@ -8,10 +8,10 @@ from django.db.models import Sum, Q, F
 from django.utils import timezone
 from django.db import transaction
 from datetime import datetime, timedelta
-from .models import Transaction, Category, Envelope, SavingsGoal
+from .models import Transaction, Category, Envelope, SavingsGoal, RecurringTransaction
 from .serializers import (
     UserSerializer, TransactionSerializer, 
-    CategorySerializer, BalanceSerializer, EnvelopeSerializer, SavingsGoalSerializer
+    CategorySerializer, BalanceSerializer, EnvelopeSerializer, SavingsGoalSerializer, RecurringTransactionSerializer
 )
 
 
@@ -241,3 +241,94 @@ class SavingsGoalViewSet(viewsets.ModelViewSet):
         
         serializer = self.get_serializer(goal)
         return Response(serializer.data)
+
+
+class RecurringTransactionViewSet(viewsets.ModelViewSet):
+    serializer_class = RecurringTransactionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return RecurringTransaction.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    @action(detail=True, methods=['post'])
+    def create_transaction(self, request, pk=None):
+        """Create an actual transaction from this recurring template"""
+        recurring = self.get_object()
+        
+        try:
+            transaction = recurring.create_transaction()
+            serializer = TransactionSerializer(transaction)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @action(detail=True, methods=['post'])
+    def skip_next(self, request, pk=None):
+        """Skip the next occurrence and move to the following one"""
+        recurring = self.get_object()
+        
+        next_date = recurring.calculate_next_occurrence()
+        if next_date:
+            recurring.next_occurrence = next_date
+            recurring.save()
+            serializer = self.get_serializer(recurring)
+            return Response(serializer.data)
+        else:
+            return Response(
+                {'error': 'No more occurrences to skip'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @action(detail=False, methods=['get'])
+    def upcoming(self, request):
+        """Get upcoming recurring transactions for the next 30 days"""
+        from datetime import date, timedelta
+        
+        end_date = date.today() + timedelta(days=30)
+        upcoming = self.get_queryset().filter(
+            next_occurrence__lte=end_date,
+            status='active'
+        ).order_by('next_occurrence')
+        
+        serializer = self.get_serializer(upcoming, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def overdue(self, request):
+        """Get overdue recurring transactions"""
+        overdue = self.get_queryset().filter(
+            next_occurrence__lt=date.today(),
+            status='active'
+        ).order_by('next_occurrence')
+        
+        serializer = self.get_serializer(overdue, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['post'])
+    def process_overdue(self, request):
+        """Process all overdue recurring transactions"""
+        from datetime import date
+        
+        overdue = self.get_queryset().filter(
+            next_occurrence__lt=date.today(),
+            status='active'
+        )
+        
+        created_transactions = []
+        for recurring in overdue:
+            try:
+                transaction = recurring.create_transaction()
+                created_transactions.append(TransactionSerializer(transaction).data)
+            except Exception as e:
+                continue  # Skip problematic transactions
+        
+        return Response({
+            'message': f'Processed {len(created_transactions)} overdue transactions',
+            'transactions': created_transactions
+        })
