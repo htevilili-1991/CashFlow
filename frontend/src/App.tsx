@@ -8,6 +8,7 @@ import Envelopes from './components/Envelopes/Envelopes';
 import Settings from './components/Settings/Settings';
 import Goals from './components/Goals/Goals';
 import RecurringTransactions from './components/RecurringTransactions/RecurringTransactions';
+import Reports from './components/Reports/Reports';
 import { useTransactions } from './hooks/useTransactions';
 import type { Transaction } from './types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -57,6 +58,8 @@ function AppContent() {
         return 'Savings Goals';
       case 'recurring':
         return 'Recurring Transactions';
+      case 'reports':
+        return 'Reports & Insights';
       case 'settings':
         return 'Settings';
       default:
@@ -95,6 +98,8 @@ function AppContent() {
         return <Goals />;
       case 'recurring':
         return <RecurringTransactions />;
+      case 'reports':
+        return <Reports />;
       case 'settings':
         return <Settings />;
       default:

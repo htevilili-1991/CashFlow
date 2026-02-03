@@ -8,7 +8,8 @@ import {
   X, 
   LogOut,
   PiggyBank,
-  Repeat
+  Repeat,
+  BarChart3
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -28,6 +29,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, activeItem, onNavig
     { id: 'envelopes', label: 'Envelopes', icon: Wallet },
     { id: 'goals', label: 'Savings Goals', icon: PiggyBank },
     { id: 'recurring', label: 'Recurring', icon: Repeat },
+    { id: 'reports', label: 'Reports', icon: BarChart3 },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
