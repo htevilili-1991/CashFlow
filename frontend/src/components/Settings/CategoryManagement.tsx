@@ -26,7 +26,7 @@ const CategoryManagement: React.FC<CategoryManagementProps> = ({ transactionType
     if (!categoryData.name) return;
 
     if (editingCategory) {
-      updateCategory({ id: editingCategory.id, data: categoryData.name });
+      updateCategory({ id: editingCategory.id, data: categoryData });
     } else {
       createCategory(categoryData);
     }
