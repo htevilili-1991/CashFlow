@@ -43,23 +43,22 @@ A modern full-stack web application for comprehensive personal finance managemen
 ## 📸 Application Screenshots
 
 ### Authentication Pages
-
-#### Login/Register Page
-<!-- Screenshot placeholder: Login/Register form with username, password fields, and toggle between login/register -->
+#### Login Page
+<img width="1912" height="1159" alt="Screenshot From 2026-02-04 07-51-55" src="https://github.com/user-attachments/assets/852b736c-e809-49cd-973c-d72a00ce9a77" />
 
 ### Main Application Pages
-
 #### Dashboard
-<!-- Screenshot placeholder: Dashboard with balance cards, recent transactions, and financial overview -->
+<img width="1912" height="1159" alt="image" src="https://github.com/user-attachments/assets/7ec323c5-bb00-411e-a3d5-f75a43119a97" />
 
 #### Transactions Page
-<!-- Screenshot placeholder: Transaction list with filters, search, add/edit functionality -->
+<img width="1912" height="1159" alt="image" src="https://github.com/user-attachments/assets/e00ceb66-998c-4a7f-a7a1-340652ebb8ec" />
+<img width="1912" height="1159" alt="image" src="https://github.com/user-attachments/assets/8bcc5eeb-5fa6-421f-b5a3-7224e566446c" />
 
 #### Categories Management
-<!-- Screenshot placeholder: Category grid with CRUD operations for income and expense categories -->
+<img width="1912" height="1159" alt="image" src="https://github.com/user-attachments/assets/78580599-c6c6-4113-aa07-36f41df17c41" />
 
 #### Envelopes Budgeting
-<!-- Screenshot placeholder: Envelope management showing budgeted amounts, spent amounts, and remaining balances -->
+<img width="1912" height="1159" alt="image" src="https://github.com/user-attachments/assets/50b9cb1b-61af-4b00-8e89-9220c88b947b" />
 
 #### Savings Goals
 <!-- Screenshot placeholder: Savings goals overview with progress bars and goal management -->
