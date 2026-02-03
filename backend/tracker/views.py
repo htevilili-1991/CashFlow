@@ -112,3 +112,34 @@ def balance_view(request):
 
     serializer = BalanceSerializer(data)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def income_view(request):
+    """Get total income and allocated amounts for envelope budgeting"""
+    user = request.user
+    
+    # Get total income (excluding income allocations to avoid double counting)
+    total_income = Transaction.objects.filter(
+        user=user, 
+        transaction_type='income'
+    ).exclude(
+        category='Income Allocation'
+    ).aggregate(total=Sum('amount'))['total'] or 0
+    
+    # Get total allocated to envelopes
+    total_allocated = Envelope.objects.filter(user=user).aggregate(
+        total=Sum('budgeted_amount')
+    )['total'] or 0
+    
+    # Calculate available income
+    available_income = total_income - total_allocated
+    
+    data = {
+        'total_income': total_income,
+        'total_allocated': total_allocated,
+        'available_income': available_income,
+    }
+    
+    return Response(data)

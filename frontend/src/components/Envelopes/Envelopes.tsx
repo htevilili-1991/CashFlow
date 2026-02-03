@@ -4,6 +4,7 @@ import { useEnvelopes } from '../../hooks/useEnvelopes';
 import { useCategories } from '../../hooks/useCategories';
 import { formatCurrency } from '../../utils/currency';
 import type { Category } from '../../types';
+import IncomeAllocation from './IncomeAllocation';
 
 const Envelopes: React.FC = () => {
   const { 
@@ -30,21 +31,16 @@ const Envelopes: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!envelopeData.category || !envelopeData.budgeted_amount) return;
+    if (!envelopeData.category) return;
 
     const category = categories.find((cat: Category) => cat.name === envelopeData.category);
     if (!category) return;
 
-    const data = {
+    // Create envelope with 0 budget - user will allocate income later
+    createEnvelope({
       category: category.id,
-      budgeted_amount: envelopeData.budgeted_amount
-    };
-
-    if (editingEnvelope) {
-      updateEnvelope({ id: editingEnvelope.id, data: { budgeted_amount: envelopeData.budgeted_amount } });
-    } else {
-      createEnvelope(data);
-    }
+      budgeted_amount: '0.00'
+    });
 
     closeModal();
   };
@@ -103,6 +99,9 @@ const Envelopes: React.FC = () => {
 
   return (
     <div className="p-6 ml-0 lg:ml-4">
+      {/* Income Allocation Section */}
+      <IncomeAllocation />
+      
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -258,8 +257,13 @@ const Envelopes: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              {editingEnvelope ? 'Edit Envelope' : 'Add Envelope'}
+              Add Envelope
             </h3>
+            <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-800">
+                Envelopes start with VT 0.00 budget. Use the "Allocate Income" button above to add funds from your total income.
+              </p>
+            </div>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -270,7 +274,6 @@ const Envelopes: React.FC = () => {
                   onChange={(e) => setEnvelopeData({ ...envelopeData, category: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                   required
-                  disabled={!!editingEnvelope}
                 >
                   <option value="">Select a category</option>
                   {categories.map((category: Category) => (
@@ -279,21 +282,6 @@ const Envelopes: React.FC = () => {
                     </option>
                   ))}
                 </select>
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Budgeted Amount
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  value={envelopeData.budgeted_amount}
-                  onChange={(e) => setEnvelopeData({ ...envelopeData, budgeted_amount: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  placeholder="0.00"
-                  required
-                />
               </div>
               <div className="flex justify-end space-x-3">
                 <button
@@ -306,9 +294,9 @@ const Envelopes: React.FC = () => {
                 <button
                   type="submit"
                   className="btn-primary"
-                  disabled={isCreating || isUpdating}
+                  disabled={isCreating}
                 >
-                  {isCreating || isUpdating ? 'Saving...' : editingEnvelope ? 'Update' : 'Create'}
+                  {isCreating ? 'Creating...' : 'Create Envelope'}
                 </button>
               </div>
             </form>
