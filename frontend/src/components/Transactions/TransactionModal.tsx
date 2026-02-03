@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Bell, Search, AlertTriangle, Wallet } from 'lucide-react';
+import { X, DollarSign, Tag, Calendar, AlertTriangle, Wallet } from 'lucide-react';
 import type { Transaction } from '../../types';
 import { useEnvelopes } from '../../hooks/useEnvelopes';
 import { useCategories } from '../../hooks/useCategories';
@@ -253,7 +253,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
                           ? 'text-yellow-700'
                           : 'text-green-700'
                       }`}>
-                        {formatCurrency(envelope.remaining_amount)}
+                        {formatCurrency(Number(envelope.remaining_amount))}
                       </span>
                     </div>
                     <div className="mt-2">
@@ -262,7 +262,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
                           {envelope.percentage_used.toFixed(1)}% used
                         </span>
                         <span className="text-gray-600">
-                          {formatCurrency(envelope.budgeted_amount)} budgeted
+                          {formatCurrency(Number(envelope.budgeted_amount))} budgeted
                         </span>
                       </div>
                       <div className={`w-full rounded-full h-1.5 ${
@@ -334,16 +334,6 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
 </form>
 </div>
 </div>
-);
-              type="submit"
-              className="btn-primary"
-            >
-              {editingTransaction ? 'Update' : 'Add'} Transaction
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
   );
 };
 
