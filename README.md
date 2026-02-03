@@ -1,158 +1,164 @@
-# CashFlow - Personal Income/Expense Tracker
+# CashFlow - Comprehensive Personal Finance Management System
 
-A modern full-stack web application for tracking personal income and expenses with Django REST Framework backend and React frontend. Built with authentication, real-time balance calculations, and a TailAdmin-inspired UI.
+A modern full-stack web application for comprehensive personal finance management with Django REST Framework backend and React frontend. Built with envelope budgeting, savings goals, recurring transactions, advanced reporting, and a TailAdmin-inspired UI.
 
-## 🏗️ Architecture Overview
+## � Key Features
 
-### Backend (Django + DRF)
-- **Framework**: Django 5.0.7 with Django REST Framework 3.15.2
-- **Database**: SQLite (development), PostgreSQL ready for production
-- **Authentication**: JWT (django-rest-framework-simplejwt)
-- **API**: RESTful API with token-based authentication
-- **CORS**: django-cors-headers for frontend integration
+### 💰 Core Financial Management
+- **Transaction Tracking**: Complete CRUD operations for income and expenses
+- **Category Management**: Separate categories for income and expenses
+- **Real-time Balance**: Automatic balance calculations and updates
+- **Transaction History**: Complete audit trail with date-based filtering
 
-### Frontend (React + Vite)
-- **Framework**: React 18 with TypeScript
-- **Build Tool**: Vite 7.x
-- **Styling**: Tailwind CSS v3.4.0 with TailAdmin-inspired design
-- **State Management**: React Query (TanStack Query) for server state
-- **Routing**: Component-based routing with authentication guards
-- **Icons**: Lucide React
-- **Notifications**: React Hot Toast
+### 📊 Envelope Budgeting System
+- **Budget Allocation**: Allocate funds to specific spending categories
+- **Envelope Tracking**: Monitor budgeted vs actual spending
+- **Overspending Alerts**: Visual indicators when approaching or exceeding budget
+- **Monthly Rollover**: Carry over underspent amounts to next month
+- **Budget vs Actual**: Real-time comparison of planned vs actual spending
 
-## 📁 Project Structure
+### 🎯 Savings Goals Management
+- **Goal Creation**: Set specific savings targets with deadlines
+- **Progress Tracking**: Visual progress bars and percentage completion
+- **Contribution Management**: Add contributions with automatic transaction creation
+- **Envelope Integration**: Goals validated against Savings envelope allocation
+- **Goal Completion**: Automatic completion detection and celebration
 
-```
-CashFlow/
-├── backend/                    # Django backend
-│   ├── cashflow_backend/       # Django project settings
-│   │   ├── settings.py         # Main configuration
-│   │   ├── urls.py            # Root URL routing
-│   │   └── wsgi.py            # WSGI configuration
-│   ├── tracker/                # Django app
-│   │   ├── models.py          # Transaction and Category models
-│   │   ├── serializers.py     # DRF serializers
-│   │   ├── views.py           # API viewsets and views
-│   │   └── urls.py            # App URL routing
-│   ├── manage.py              # Django management script
-│   ├── requirements.txt       # Python dependencies
-│   └── db.sqlite3            # SQLite database (development)
-├── frontend/                   # React frontend
-│   ├── src/
-│   │   ├── api/               # API layer
-│   │   │   ├── index.ts       # Axios configuration with interceptors
-│   │   │   ├── auth.ts        # Authentication API calls
-│   │   │   ├── transactions.ts # Transaction API calls
-│   │   │   └── categories.ts  # Category API calls
-│   │   ├── components/        # React components
-│   │   │   ├── Auth/          # Authentication components
-│   │   │   │   ├── Login.tsx  # Login/Register form
-│   │   │   │   └── AuthGuard.tsx # Authentication guard
-│   │   │   ├── Layout/        # Layout components
-│   │   │   │   ├── Sidebar.tsx # Navigation sidebar
-│   │   │   │   ├── Header.tsx  # App header
-│   │   │   │   └── Layout.tsx  # Main layout wrapper
-│   │   │   ├── Dashboard/     # Dashboard components
-│   │   │   │   ├── Dashboard.tsx # Main dashboard
-│   │   │   │   └── BalanceCard.tsx # Balance display cards
-│   │   │   ├── Transactions/  # Transaction components
-│   │   │   │   ├── TransactionList.tsx # Transaction table
-│   │   │   │   └── TransactionModal.tsx # Add/Edit modal
-│   │   │   └── Categories/    # Category components
-│   │   │       └── CategoryList.tsx # Category management
-│   │   ├── hooks/             # Custom React hooks
-│   │   │   ├── useAuth.ts     # Authentication state management
-│   │   │   ├── useTransactions.ts # Transaction state
-│   │   │   └── useCategories.ts # Category state
-│   │   ├── types/             # TypeScript type definitions
-│   │   │   └── index.ts       # Main type exports
-│   │   ├── App.tsx            # Main App component
-│   │   └── main.tsx           # Application entry point
-│   ├── public/                # Static assets
-│   ├── package.json           # Node.js dependencies
-│   ├── tailwind.config.js     # Tailwind CSS configuration
-│   ├── vite.config.ts          # Vite configuration
-│   └── tsconfig.json           # TypeScript configuration
-└── README.md                   # This file
-```
+### � Recurring Transactions
+- **Automated Scheduling**: Set up recurring income and expenses
+- **Multiple Frequencies**: Daily, weekly, biweekly, monthly, quarterly, yearly
+- **Smart Date Calculation**: Automatic next occurrence calculation
+- **Overdue Processing**: Bulk processing of overdue transactions
+- **Skip Functionality**: Skip individual occurrences when needed
+- **Status Management**: Active, paused, and completed states
 
-## 🚀 Quick Start
+### 📈 Advanced Reports & Insights
+- **Monthly Reports**: Detailed monthly financial analysis with charts
+- **Yearly Reports**: Annual financial trends and category breakdowns
+- **Comparison Reports**: Period-over-period analysis and insights
+- **Interactive Charts**: Pie charts, line charts, and bar charts using Recharts
+- **Data Export**: Export to CSV and JSON formats for tax and analysis
+- **Trend Analysis**: Category spending trends over time
 
-### Prerequisites
-- Python 3.8+
-- Node.js 16+
-- npm or yarn
+## 📸 Application Screenshots
 
-### Backend Setup
+### Authentication Pages
 
-1. **Navigate to backend directory**
-   ```bash
-   cd backend
-   ```
+#### Login/Register Page
+<!-- Screenshot placeholder: Login/Register form with username, password fields, and toggle between login/register -->
 
-2. **Create and activate virtual environment**
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+### Main Application Pages
 
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+#### Dashboard
+<!-- Screenshot placeholder: Dashboard with balance cards, recent transactions, and financial overview -->
 
-4. **Run database migrations**
-   ```bash
-   python manage.py migrate
-   ```
+#### Transactions Page
+<!-- Screenshot placeholder: Transaction list with filters, search, add/edit functionality -->
 
-5. **Create superuser (optional)**
-   ```bash
-   python manage.py createsuperuser
-   ```
+#### Categories Management
+<!-- Screenshot placeholder: Category grid with CRUD operations for income and expense categories -->
 
-6. **Start development server**
-   ```bash
-   python manage.py runserver 8000
-   ```
+#### Envelopes Budgeting
+<!-- Screenshot placeholder: Envelope management showing budgeted amounts, spent amounts, and remaining balances -->
 
-### Frontend Setup
+#### Savings Goals
+<!-- Screenshot placeholder: Savings goals overview with progress bars and goal management -->
 
-1. **Navigate to frontend directory**
-   ```bash
-   cd frontend
-   ```
+#### Recurring Transactions
+<!-- Screenshot placeholder: Recurring transactions list with status indicators and management options -->
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+#### Reports & Insights
+<!-- Screenshot placeholder: Reports dashboard with monthly, yearly, and comparison reports -->
 
-3. **Start development server**
-   ```bash
-   npm run dev
-   ```
+#### Settings
+<!-- Screenshot placeholder: Settings page with user preferences and configuration options -->
 
-### Access Points
+### Modals and Interactive Components
 
-- **Frontend Application**: http://localhost:5174
-- **Backend API**: http://localhost:8000/api
-- **Admin Panel**: http://localhost:8000/admin
+#### Transaction Modal
+<!-- Screenshot placeholder: Add/Edit transaction modal with form fields for amount, description, category, date -->
 
-## 🔐 Authentication
+#### Category Modal
+<!-- Screenshot placeholder: Add/Edit category modal with name and transaction type selection -->
 
-### JWT Token Flow
+#### Envelope Modal
+<!-- Screenshot placeholder: Add/Edit envelope modal with budget amount and category selection -->
 
-1. **Login**: POST `/api/token/` with username/password
-2. **Response**: Access token (1 hour) + Refresh token (7 days)
-3. **API Calls**: Include `Authorization: Bearer <access_token>` header
-4. **Token Refresh**: Automatic refresh using interceptors
-5. **Logout**: Clear tokens from localStorage
+#### Savings Goal Modal
+<!-- Screenshot placeholder: Create/Edit savings goal modal with validation against Savings envelope -->
 
-### Default Admin User
+#### Contribution Modal
+<!-- Screenshot placeholder: Contribute to goal modal with amount validation and available balance display -->
 
-- **Username**: `htevilili`
-- **Password**: `admin123`
+#### Recurring Transaction Modal
+<!-- Screenshot placeholder: Create/Edit recurring transaction modal with frequency options and scheduling -->
+
+#### Export Modal
+<!-- Screenshot placeholder: Export data modal with format selection (CSV/JSON) and date range options -->
+
+### Charts and Visualizations
+
+#### Monthly Report Charts
+<!-- Screenshot placeholder: Monthly report with pie chart for category breakdown and line chart for daily trends -->
+
+#### Yearly Report Charts
+<!-- Screenshot placeholder: Yearly report with monthly trend line chart and top categories bar chart -->
+
+#### Comparison Report Charts
+<!-- Screenshot placeholder: Comparison report with period-over-period comparison bar charts -->
+
+## 🎨 Frontend Components
+
+### Authentication Flow
+1. **AuthGuard**: Protects authenticated routes
+2. **Login**: Handles login/registration forms
+3. **useAuth**: Manages authentication state and tokens
+
+### Layout System
+- **Layout**: Main layout wrapper with sidebar and header
+- **Sidebar**: Navigation with mobile responsiveness and all menu items
+- **Header**: App header with user info and navigation
+
+### Dashboard
+- **BalanceCard**: Display balance statistics with gradients
+- **Recent Transactions**: Quick view of latest transactions
+- **Real-time Updates**: React Query for automatic data refresh
+- **Financial Overview**: Complete financial snapshot
+
+### Transaction Management
+- **TransactionList**: Full CRUD table with filtering and search
+- **TransactionModal**: Add/Edit form with validation and category selection
+- **Color Coding**: Green for income, red for expenses
+- **Date Filtering**: Flexible date range filtering
+
+### Category Management
+- **CategoryList**: Grid layout with CRUD operations
+- **Type Separation**: Separate income and expense categories
+- **User-scoped**: Each user manages their own categories
+
+### Envelope Budgeting
+- **Envelope Management**: Complete envelope CRUD operations
+- **Budget Tracking**: Real-time budget vs actual spending
+- **Visual Indicators**: Color-coded status indicators
+- **Monthly Rollover**: Automated monthly envelope processing
+
+### Savings Goals
+- **Goal Management**: Complete CRUD for savings goals
+- **Progress Tracking**: Visual progress bars and statistics
+- **Contribution System**: Integrated contribution management
+- **Envelope Validation**: Goals validated against Savings envelope
+
+### Recurring Transactions
+- **Transaction Management**: Full CRUD for recurring transactions
+- **Frequency Options**: Multiple scheduling frequencies
+- **Status Management**: Active, paused, and completed states
+- **Bulk Processing**: Process multiple overdue transactions
+
+### Reports & Analytics
+- **Interactive Charts**: Pie charts, line charts, bar charts
+- **Data Export**: CSV and JSON export capabilities
+- **Trend Analysis**: Category spending trends over time
+- **Period Comparison**: Month-over-month and year-over-year analysis
 
 ## 📊 API Endpoints
 
@@ -173,69 +179,38 @@ CashFlow/
 - `PUT /api/categories/<id>/` - Update category
 - `DELETE /api/categories/<id>/` - Delete category
 
-### Balance
+### Envelopes
+- `GET /api/envelopes/` - List user envelopes
+- `POST /api/envelopes/` - Create envelope
+- `PUT /api/envelopes/<id>/` - Update envelope
+- `DELETE /api/envelopes/<id>/` - Delete envelope
 - `GET /api/balance/` - Get balance statistics
-  ```json
-  {
-    "total_income": "5800.00",
-    "total_expenses": "495.00",
-    "balance": "5305.00",
-    "monthly_income": "4500.00",
-    "monthly_expenses": "2800.00"
-  }
-  ```
+- `GET /api/income/` - Get income allocation data
+- `POST /api/monthly-rollover/` - Perform monthly envelope rollover
 
-## 🗄️ Database Models
+### Savings Goals
+- `GET /api/savings-goals/` - List savings goals
+- `POST /api/savings-goals/` - Create savings goal
+- `PUT /api/savings-goals/<id>/` - Update savings goal
+- `DELETE /api/savings-goals/<id>/` - Delete savings goal
+- `POST /api/savings-goals/<id>/contribute/` - Contribute to goal
 
-### Transaction Model
-```python
-class Transaction(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    date = models.DateField()
-    description = models.CharField(max_length=255)
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
-    category = models.CharField(max_length=100)
-    transaction_type = models.CharField(
-        max_length=10,
-        choices=[('income', 'Income'), ('expense', 'Expense')]
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-```
+### Recurring Transactions
+- `GET /api/recurring-transactions/` - List recurring transactions
+- `POST /api/recurring-transactions/` - Create recurring transaction
+- `PUT /api/recurring-transactions/<id>/` - Update recurring transaction
+- `DELETE /api/recurring-transactions/<id>/` - Delete recurring transaction
+- `POST /api/recurring-transactions/<id>/create-transaction/` - Create transaction now
+- `POST /api/recurring-transactions/<id>/skip-next/` - Skip next occurrence
+- `GET /api/recurring-transactions/upcoming/` - Get upcoming transactions
+- `GET /api/recurring-transactions/overdue/` - Get overdue transactions
+- `POST /api/recurring-transactions/process-overdue/` - Process all overdue
 
-### Category Model
-```python
-class Category(models.Model):
-    name = models.CharField(max_length=100)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-```
-
-## 🎨 Frontend Components
-
-### Authentication Flow
-1. **AuthGuard**: Protects authenticated routes
-2. **Login**: Handles login/registration forms
-3. **useAuth**: Manages authentication state and tokens
-
-### Layout System
-- **Layout**: Main layout wrapper with sidebar and header
-- **Sidebar**: Navigation with mobile responsiveness
-- **Header**: App header with search and notifications
-
-### Dashboard
-- **BalanceCard**: Display balance statistics with gradients
-- **Recent Transactions**: Quick view of latest transactions
-- **Real-time Updates**: React Query for automatic data refresh
-
-### Transaction Management
-- **TransactionList**: Full CRUD table with filtering
-- **TransactionModal**: Add/Edit form with validation
-- **Color Coding**: Green for income, red for expenses
-
-### Category Management
-- **CategoryList**: Grid layout with CRUD operations
-- **User-scoped**: Each user manages their own categories
+### Reports & Analytics
+- `GET /api/reports/monthly/` - Monthly financial report
+- `GET /api/reports/yearly/` - Yearly financial report
+- `GET /api/reports/comparison/` - Period comparison report
+- `GET /api/export/` - Export data (CSV/JSON)
 
 ## 🔧 Configuration
 
