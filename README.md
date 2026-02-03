@@ -61,50 +61,27 @@ A modern full-stack web application for comprehensive personal finance managemen
 <img width="1912" height="1159" alt="image" src="https://github.com/user-attachments/assets/50b9cb1b-61af-4b00-8e89-9220c88b947b" />
 
 #### Savings Goals
-<!-- Screenshot placeholder: Savings goals overview with progress bars and goal management -->
+<img width="1912" height="1159" alt="image" src="https://github.com/user-attachments/assets/fded8237-71bc-4cfe-86c2-92323550b511" />
+<img width="1912" height="1159" alt="image" src="https://github.com/user-attachments/assets/4bf5291e-bfd4-4b1f-baca-59ba91093668" />
 
 #### Recurring Transactions
-<!-- Screenshot placeholder: Recurring transactions list with status indicators and management options -->
+<img width="1912" height="1159" alt="image" src="https://github.com/user-attachments/assets/043a585a-9f48-4641-b10b-0f64c8589faf" />
+<img width="1912" height="1159" alt="image" src="https://github.com/user-attachments/assets/5aa9e239-4fa6-41aa-84af-704fb8a638d1" />
 
 #### Reports & Insights
-<!-- Screenshot placeholder: Reports dashboard with monthly, yearly, and comparison reports -->
-
-#### Settings
-<!-- Screenshot placeholder: Settings page with user preferences and configuration options -->
-
-### Modals and Interactive Components
-
-#### Transaction Modal
-<!-- Screenshot placeholder: Add/Edit transaction modal with form fields for amount, description, category, date -->
-
-#### Category Modal
-<!-- Screenshot placeholder: Add/Edit category modal with name and transaction type selection -->
-
-#### Envelope Modal
-<!-- Screenshot placeholder: Add/Edit envelope modal with budget amount and category selection -->
-
-#### Savings Goal Modal
-<!-- Screenshot placeholder: Create/Edit savings goal modal with validation against Savings envelope -->
-
-#### Contribution Modal
-<!-- Screenshot placeholder: Contribute to goal modal with amount validation and available balance display -->
-
-#### Recurring Transaction Modal
-<!-- Screenshot placeholder: Create/Edit recurring transaction modal with frequency options and scheduling -->
-
-#### Export Modal
-<!-- Screenshot placeholder: Export data modal with format selection (CSV/JSON) and date range options -->
+<img width="1912" height="1159" alt="image" src="https://github.com/user-attachments/assets/8170b930-563e-4856-a745-97a6be096637" />
+<img width="1912" height="1159" alt="image" src="https://github.com/user-attachments/assets/79b945c2-cdba-477e-b97a-8da64db69b24" />
 
 ### Charts and Visualizations
 
 #### Monthly Report Charts
-<!-- Screenshot placeholder: Monthly report with pie chart for category breakdown and line chart for daily trends -->
+<img width="1912" height="1159" alt="image" src="https://github.com/user-attachments/assets/7feed4d5-6964-4b70-9844-8bb3f94b0090" />
 
 #### Yearly Report Charts
-<!-- Screenshot placeholder: Yearly report with monthly trend line chart and top categories bar chart -->
+<img width="1912" height="1159" alt="image" src="https://github.com/user-attachments/assets/50ea8813-2ce3-4c44-9ac3-51b3f781be48" />
 
 #### Comparison Report Charts
-<!-- Screenshot placeholder: Comparison report with period-over-period comparison bar charts -->
+<img width="1912" height="1159" alt="image" src="https://github.com/user-attachments/assets/0aa74100-48bd-41a2-9c12-6c56f44bfca9" />
 
 ## 🎨 Frontend Components
 
