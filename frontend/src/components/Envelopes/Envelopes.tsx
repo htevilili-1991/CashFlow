@@ -102,7 +102,7 @@ const Envelopes: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className="p-6 ml-0 lg:ml-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
