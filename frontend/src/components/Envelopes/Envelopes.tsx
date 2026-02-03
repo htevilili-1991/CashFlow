@@ -5,6 +5,7 @@ import { useCategories } from '../../hooks/useCategories';
 import { formatCurrency } from '../../utils/currency';
 import type { Category } from '../../types';
 import IncomeAllocation from './IncomeAllocation';
+import EnvelopeFunding from './EnvelopeFunding';
 
 const Envelopes: React.FC = () => {
   const { 
@@ -99,6 +100,9 @@ const Envelopes: React.FC = () => {
 
   return (
     <div className="p-6 ml-0 lg:ml-4">
+      {/* Envelope Funding Section */}
+      <EnvelopeFunding />
+      
       {/* Income Allocation Section */}
       <IncomeAllocation />
       

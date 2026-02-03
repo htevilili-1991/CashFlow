@@ -150,3 +150,54 @@ def income_view(request):
     }
     
     return Response(data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def monthly_rollover_view(request):
+    """Perform monthly envelope rollover - carry over underspent amounts and reset overspent"""
+    user = request.user
+    rollover_data = request.data
+    
+    # Get rollover settings from request
+    carry_over_underspent = rollover_data.get('carry_over_underspent', True)
+    reset_overspent = rollover_data.get('reset_overspent', True)
+    
+    updated_envelopes = []
+    
+    for envelope in Envelope.objects.filter(user=user):
+        current_budget = float(envelope.budgeted_amount)
+        spent_amount = float(envelope.spent_amount)
+        remaining = current_budget - spent_amount
+        
+        new_budget = current_budget
+        
+        if remaining > 0 and carry_over_underspent:
+            # Carry over underspent amount
+            new_budget = spent_amount  # Reset to spent amount, remaining becomes new budget
+        elif remaining < 0 and reset_overspent:
+            # Reset overspent envelopes to 0
+            new_budget = 0
+        else:
+            # Keep current budget
+            new_budget = current_budget
+        
+        if new_budget != current_budget:
+            envelope.budgeted_amount = new_budget
+            envelope.save()
+            updated_envelopes.append({
+                'id': envelope.id,
+                'category_name': envelope.category.name,
+                'old_budget': current_budget,
+                'new_budget': new_budget,
+                'remaining': remaining
+            })
+    
+    return Response({
+        'message': 'Monthly rollover completed',
+        'updated_envelopes': updated_envelopes,
+        'settings_used': {
+            'carry_over_underspent': carry_over_underspent,
+            'reset_overspent': reset_overspent
+        }
+    })
