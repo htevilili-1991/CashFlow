@@ -26,6 +26,8 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
     transaction_type: 'expense' as 'income' | 'expense',
     date: new Date().toISOString().split('T')[0],
   });
+  
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const categories = [
     'Salary', 'Freelance', 'Investment', 'Food', 'Transport', 
@@ -50,10 +52,29 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
         date: new Date().toISOString().split('T')[0],
       });
     }
+    setSubmitError(null); // Clear error when modal opens
   }, [editingTransaction, isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(null);
+    
+    // Validate envelope budget for expenses
+    if (formData.transaction_type === 'expense' && formData.category) {
+      const envelope = getEnvelopeByCategoryName(formData.category);
+      if (envelope) {
+        const amount = parseFloat(formData.amount);
+        const remaining = parseFloat(envelope.remaining_amount);
+        
+        if (amount > remaining) {
+          setSubmitError(
+            `Amount exceeds envelope budget! Available: VT ${remaining.toFixed(2)}, Entered: VT ${amount.toFixed(2)}. Please reduce the amount.`
+          );
+          return;
+        }
+      }
+    }
+    
     onSubmit(formData);
     onClose();
     setFormData({
@@ -67,10 +88,8 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setSubmitError(null); // Clear error when user makes changes
   };
 
   if (!isOpen) return null;
@@ -91,6 +110,21 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Error Message */}
+          {submitError && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex items-start space-x-3">
+                <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5" />
+                <div>
+                  <h4 className="text-sm font-semibold text-red-800">Envelope Budget Exceeded</h4>
+                  <p className="text-sm text-red-700 mt-1">{submitError}</p>
+                  <p className="text-xs text-red-600 mt-2">
+                    Please adjust the amount or select a different category to continue.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Transaction Type
