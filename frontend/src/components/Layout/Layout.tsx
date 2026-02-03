@@ -29,6 +29,7 @@ const Layout: React.FC<LayoutProps> = ({
 }) => {
   const { logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const getPageTitle = () => {
     switch (activeItem) {
@@ -51,6 +52,8 @@ const Layout: React.FC<LayoutProps> = ({
         activeItem={activeItem}
         onNavigate={onNavigate}
         onLogout={logout}
+        isCollapsed={isCollapsed}
+        onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
       />
       
       <div className="flex-1 flex flex-col">
