@@ -7,7 +7,8 @@ import {
   Menu, 
   X, 
   LogOut,
-  PiggyBank
+  PiggyBank,
+  Repeat
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -26,6 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, activeItem, onNavig
     { id: 'transactions', label: 'Transactions', icon: CreditCard },
     { id: 'envelopes', label: 'Envelopes', icon: Wallet },
     { id: 'goals', label: 'Savings Goals', icon: PiggyBank },
+    { id: 'recurring', label: 'Recurring', icon: Repeat },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
