@@ -12,6 +12,7 @@ import Reports from './components/Reports/Reports';
 import { useTransactions } from './hooks/useTransactions';
 import type { Transaction } from './types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 const queryClient = new QueryClient();
 
@@ -125,9 +126,11 @@ function AppContent() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthGuard>
-        <AppContent />
-      </AuthGuard>
+      <ThemeProvider>
+        <AuthGuard>
+          <AppContent />
+        </AuthGuard>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

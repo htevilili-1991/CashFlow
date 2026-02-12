@@ -280,12 +280,21 @@ const Envelopes: React.FC = () => {
                   required
                 >
                   <option value="">Select a category</option>
-                  {categories.map((category: Category) => (
+                  {categories.filter((category: Category) => 
+                    !envelopes.some((envelope: any) => envelope.category === category.id)
+                  ).map((category: Category) => (
                     <option key={category.id} value={category.name}>
                       {category.name}
                     </option>
                   ))}
                 </select>
+                {categories.filter((category: Category) => 
+                  !envelopes.some((envelope: any) => envelope.category === category.id)
+                ).length === 0 && (
+                  <p className="text-sm text-gray-500 mt-2">
+                    All categories already have envelopes. Create a new category first or delete existing envelopes.
+                  </p>
+                )}
               </div>
               <div className="flex justify-end space-x-3">
                 <button
@@ -298,7 +307,9 @@ const Envelopes: React.FC = () => {
                 <button
                   type="submit"
                   className="btn-primary"
-                  disabled={isCreating}
+                  disabled={isCreating || categories.filter((category: Category) => 
+                    !envelopes.some((envelope: any) => envelope.category === category.id)
+                  ).length === 0}
                 >
                   {isCreating ? 'Creating...' : 'Create Envelope'}
                 </button>
