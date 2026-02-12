@@ -3,7 +3,7 @@ import { Repeat, Plus, Calendar, AlertCircle, Play, Clock } from 'lucide-react';
 import RecurringTransactionCard from './RecurringTransactionCard';
 import RecurringTransactionModal from './RecurringTransactionModal';
 import { useRecurringTransactions } from '../../hooks/useRecurringTransactions';
-import { formatCurrency } from '../../utils/currency';
+import { formatCurrency, formatCurrencyFromCents } from '../../utils/currency';
 import type { RecurringTransaction } from '../../api/recurringTransactions';
 
 const RecurringTransactions: React.FC = () => {
@@ -66,10 +66,10 @@ const RecurringTransactions: React.FC = () => {
   const activeTransactions = recurringTransactions.filter((t: RecurringTransaction) => t.status === 'active');
   const monthlyIncome = activeTransactions
     .filter((t: RecurringTransaction) => t.transaction_type === 'income' && t.frequency === 'monthly')
-    .reduce((sum: number, t: RecurringTransaction) => sum + t.amount, 0);
+    .reduce((sum: number, t: RecurringTransaction) => sum + t.amount, 0) / 100; // Convert from cents
   const monthlyExpenses = activeTransactions
     .filter((t: RecurringTransaction) => t.transaction_type === 'expense' && t.frequency === 'monthly')
-    .reduce((sum: number, t: RecurringTransaction) => sum + t.amount, 0);
+    .reduce((sum: number, t: RecurringTransaction) => sum + t.amount, 0) / 100; // Convert from cents
 
   if (isLoading) {
     return (
@@ -193,7 +193,7 @@ const RecurringTransactions: React.FC = () => {
                   <span className={`font-semibold ${
                     transaction.transaction_type === 'income' ? 'text-green-600' : 'text-red-600'
                   }`}>
-                    {formatCurrency(transaction.amount)}
+                    {formatCurrencyFromCents(transaction.amount)}
                   </span>
                 </div>
               </div>

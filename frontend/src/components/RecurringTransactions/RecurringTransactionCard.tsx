@@ -1,6 +1,6 @@
 import React from 'react';
 import { Calendar, Play, SkipForward, Edit2, Trash2, AlertCircle, Clock } from 'lucide-react';
-import { formatCurrency } from '../../utils/currency';
+import { formatCurrencyFromCents } from '../../utils/currency';
 import type { RecurringTransaction } from '../../api/recurringTransactions';
 
 interface RecurringTransactionCardProps {
@@ -90,7 +90,7 @@ const RecurringTransactionCard: React.FC<RecurringTransactionCardProps> = ({
           <p className={`font-semibold ${
             transaction.transaction_type === 'income' ? 'text-green-600' : 'text-red-600'
           }`}>
-            {formatCurrency(transaction.amount)}
+            {formatCurrencyFromCents(transaction.amount)}
           </p>
         </div>
         <div>

@@ -35,7 +35,7 @@ const RecurringTransactionModal: React.FC<RecurringTransactionModalProps> = ({
       setFormData({
         name: editingTransaction.name,
         description: editingTransaction.description,
-        amount: editingTransaction.amount.toString(),
+        amount: (editingTransaction.amount / 100).toFixed(2), // Convert from cents to dollars
         category: editingTransaction.category,
         transaction_type: editingTransaction.transaction_type,
         frequency: editingTransaction.frequency,
@@ -65,7 +65,7 @@ const RecurringTransactionModal: React.FC<RecurringTransactionModalProps> = ({
     const submitData: CreateRecurringTransaction = {
       name: formData.name,
       description: formData.description,
-      amount: parseFloat(formData.amount),
+      amount: Math.round(parseFloat(formData.amount) * 100), // Convert to integer (cents)
       category: formData.category,
       transaction_type: formData.transaction_type,
       frequency: formData.frequency,
